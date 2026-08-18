@@ -1,0 +1,1298 @@
+<title>Accounting for an Open Economy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600;6..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap">
+<style>
+:root{
+  --ground:#EFF2F0; --surface:#FBFCFB; --surface-2:#F2F5F3;
+  --ink:#0F1F1B; --ink-2:#54635F; --muted:#7E8D88;
+  --hair:#D6DEDA; --hair-strong:#BAC7C2;
+  --green:#00846B; --copper:#C24E14; --green-soft:rgba(0,132,107,.12); --copper-soft:rgba(194,78,20,.12);
+  --shadow:0 1px 2px rgba(15,31,27,.06), 0 12px 32px rgba(15,31,27,.08);
+  --display:"Bodoni Moda", "Times New Roman", serif;
+  --body:"Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#060D0B; --surface:#0E1A17; --surface-2:#132320;
+    --ink:#E8F0ED; --ink-2:#9BAEA9; --muted:#7A8C87;
+    --hair:#1E2F2A; --hair-strong:#2C4139;
+    --green:#17A882; --copper:#DD6B26; --green-soft:rgba(23,168,130,.15); --copper-soft:rgba(221,107,38,.15);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#060D0B; --surface:#0E1A17; --surface-2:#132320;
+  --ink:#E8F0ED; --ink-2:#9BAEA9; --muted:#7A8C87;
+  --hair:#1E2F2A; --hair-strong:#2C4139;
+  --green:#17A882; --copper:#DD6B26; --green-soft:rgba(23,168,130,.15); --copper-soft:rgba(221,107,38,.15);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--body); -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+/* ---------- deck chrome ---------- */
+.deck{position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;}
+.stage{
+  position:relative; width:min(100vw, calc((100vh - 58px) * 16 / 9));
+  aspect-ratio:16/9; container-type:size; background:var(--surface);
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.bar{
+  width:min(100vw, calc((100vh - 58px) * 16 / 9)); height:58px;
+  display:flex; align-items:center; gap:14px; padding:0 4px;
+  font-family:var(--mono); font-size:12px; color:var(--muted);
+}
+.bar button{
+  font:inherit; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  background:transparent; border:1px solid var(--hair); color:var(--ink-2);
+  padding:7px 11px; border-radius:2px; cursor:pointer; transition:background .15s, border-color .15s, color .15s;
+}
+.bar button:hover{background:var(--surface); border-color:var(--hair-strong); color:var(--ink);}
+.bar button:focus-visible, .rail button:focus-visible{outline:2px solid var(--green); outline-offset:2px;}
+.counter{font-variant-numeric:tabular-nums; color:var(--ink-2); letter-spacing:.04em;}
+.spacer{flex:1}
+.rail{display:flex; gap:5px; align-items:center;}
+.rail button{width:9px; height:9px; padding:0; border-radius:50%; border:1px solid var(--hair-strong); background:transparent; cursor:pointer;}
+.rail button[aria-current="true"]{background:var(--green); border-color:var(--green);}
+.progress{position:absolute; left:0; bottom:0; height:2px; background:var(--green); transition:width .35s ease; z-index:6;}
+/* ---------- slides ---------- */
+.slide{
+  position:absolute; inset:0; overflow:hidden; padding:5.6cqw 6cqw 4.4cqw;
+  display:flex; flex-direction:column; opacity:0; visibility:hidden;
+  transition:opacity .4s ease, visibility .4s;
+}
+.slide.is-active{opacity:1; visibility:visible;}
+.eyebrow{
+  font-family:var(--mono); font-size:1.15cqw; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--copper); display:flex; align-items:center; gap:.9cqw; margin-bottom:1.6cqw;
+}
+.eyebrow::after{content:""; flex:1; height:1px; background:var(--hair);}
+h1{font-family:var(--display); font-weight:600; font-size:6.4cqw; line-height:1.02; margin:0; text-wrap:balance; letter-spacing:-.01em;}
+h2{font-family:var(--display); font-weight:600; font-size:3.45cqw; line-height:1.06; margin:0 0 1.1cqw; text-wrap:balance; letter-spacing:-.005em;}
+.deck-sub{font-size:1.85cqw; line-height:1.45; color:var(--ink-2); max-width:62ch; margin:0 0 1.8cqw; font-weight:300;}
+p{margin:0 0 .9cqw; font-size:1.46cqw; line-height:1.48; color:var(--ink-2);}
+strong{color:var(--ink); font-weight:600;}
+.lead{font-size:1.62cqw; color:var(--ink);}
+.body{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center;}
+.src{font-family:var(--mono); font-size:.95cqw; color:var(--muted); letter-spacing:.02em; margin-top:1cqw;}
+.kicker{font-family:var(--mono); font-size:1.05cqw; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+/* reveal */
+@media (prefers-reduced-motion: no-preference){
+  .slide.is-active .rv{animation:rise .55s cubic-bezier(.2,.7,.3,1) both; animation-delay:var(--d,0s);}
+}
+@keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+/* ---------- components ---------- */
+.grid{display:grid; gap:1.5cqw;}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.card{
+  background:var(--surface-2); border:1px solid var(--hair); border-radius:2px;
+  padding:1.6cqw 1.6cqw 1.5cqw; display:flex; flex-direction:column; gap:.6cqw;
+}
+.card h3{font-family:var(--body); font-size:1.36cqw; font-weight:600; margin:0; color:var(--ink); line-height:1.25;}
+.card p{font-size:1.16cqw; margin:0; line-height:1.42;}
+.card .num{font-family:var(--mono); font-size:1cqw; letter-spacing:.16em; color:var(--copper);}
+.stat{display:flex; flex-direction:column; gap:.35cqw; padding:1.3cqw 0 1.3cqw 1.2cqw; border-left:2px solid var(--green);}
+.stat .v{font-family:var(--display); font-size:2.8cqw; font-weight:600; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums;}
+.stat .l{font-size:1.03cqw; color:var(--ink-2); line-height:1.35;}
+.stat .n{font-family:var(--mono); font-size:.9cqw; color:var(--muted); letter-spacing:.05em;}
+ul.tick{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.68cqw;}
+ul.tick li{font-size:1.32cqw; line-height:1.4; color:var(--ink-2); padding-left:1.7cqw; position:relative;}
+ul.tick li::before{content:""; position:absolute; left:0; top:.5cqw; width:.6cqw; height:.6cqw; background:var(--green); border-radius:50%;}
+figure{margin:0; display:flex; flex-direction:column; min-height:0;}
+figcaption{font-size:1.04cqw; color:var(--ink-2); line-height:1.4; margin-top:.7cqw;}
+svg.fig{width:100%; height:auto; display:block; color:var(--ink-2);}
+.eq{
+  font-family:var(--mono); font-size:1.28cqw; color:var(--ink); background:var(--green-soft);
+  border-left:2px solid var(--green); padding:.85cqw 1.1cqw; letter-spacing:.01em; line-height:1.5;
+}
+.pill{
+  display:inline-block; font-family:var(--mono); font-size:.95cqw; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--green); border:1px solid var(--green); border-radius:99px; padding:.25cqw .8cqw;
+}
+.chart-wrap{position:relative; width:100%;}
+.tt{
+  position:absolute; pointer-events:none; opacity:0; transition:opacity .12s;
+  background:var(--ink); color:var(--surface); font-family:var(--mono); font-size:11px; line-height:1.45;
+  padding:6px 9px; border-radius:3px; white-space:nowrap; transform:translate(-50%,-140%); z-index:5;
+}
+.tt b{color:var(--surface); font-weight:600;}
+.notes{
+  position:fixed; left:0; right:0; bottom:0; max-height:38vh; overflow:auto; z-index:20;
+  background:var(--surface); border-top:1px solid var(--hair-strong); padding:16px 22px 20px;
+  font-size:14px; line-height:1.55; color:var(--ink-2); display:none; box-shadow:0 -10px 30px rgba(0,0,0,.12);
+}
+.notes.on{display:block}
+.notes h4{margin:0 0 8px; font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--copper); font-weight:500;}
+.notes p{font-size:14px; color:var(--ink-2); margin:0 0 8px;}
+.notes ul{margin:0; padding-left:18px} .notes li{margin-bottom:5px}
+.hint{font-family:var(--mono); font-size:.95cqw; color:var(--muted); letter-spacing:.04em;}
+canvas.tex{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.55;}
+@media (max-width:640px){ .bar{font-size:10px; gap:8px} .bar .hide-s{display:none} }
+</style>
+<style>
+@media (prefers-reduced-motion: no-preference){
+  .slide.is-active .rvf{animation:fadein .5s ease both; animation-delay:var(--d,0s);}
+}
+@keyframes fadein{from{opacity:0} to{opacity:1}}
+.fig text{font-family:var(--mono); fill:var(--ink-2); stroke:none;}
+.fig .nodefill{fill:var(--surface-2); stroke:var(--hair-strong);}
+.fig .nodetext{fill:var(--ink); font-family:"Source Sans 3", sans-serif;}
+.fig .lbl{fill:var(--muted); font-size:12px; letter-spacing:.05em; text-transform:uppercase;}
+.fig .flow{stroke:var(--hair-strong); fill:none;}
+.fig .accent{stroke:var(--copper);} .fig .accenttext{fill:var(--copper);}
+.fig .hi{fill:var(--copper); font-family:"Source Sans 3", system-ui, sans-serif;}
+.fig .lbl.hi{fill:var(--copper); font-family:var(--mono);}
+</style>
+
+<div class="deck">
+<div class="stage" id="stage">
+<style>
+.acct{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:1.12cqw;}
+.acct td{padding:.42cqw .7cqw; border-bottom:1px solid var(--hair); color:var(--ink-2);}
+.acct td.n{text-align:right; font-variant-numeric:tabular-nums; color:var(--ink);}
+.acct td.sym{color:var(--copper); width:7ch;}
+.acct td.op{color:var(--muted); width:3ch; text-align:center;}
+.acct tr.agg td{background:var(--green-soft); font-weight:600; color:var(--ink); border-bottom:1px solid var(--hair-strong);}
+.acct tr.fin td{background:var(--copper-soft); font-weight:600; color:var(--ink);}
+.ledger{display:flex; flex-direction:column; gap:.55cqw;}
+.ledger .tx{border:1px solid var(--hair); border-left:2px solid var(--green); background:var(--surface-2); padding:.7cqw 1.1cqw; cursor:pointer; border-radius:2px; transition:border-color .18s;}
+.ledger .tx:focus-visible{outline:2px solid var(--green); outline-offset:2px;}
+.ledger .tx .q{font-size:1.15cqw; color:var(--ink); display:flex; justify-content:space-between; gap:1.4cqw; align-items:baseline; line-height:1.35;}
+.ledger .tx .hintx{font-family:var(--mono); font-size:.85cqw; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; white-space:nowrap;}
+.ledger .tx .ans{display:none; margin-top:.65cqw; padding-top:.6cqw; border-top:1px dashed var(--hair-strong);}
+.ledger .tx.open .ans{display:block;}
+.ledger .tx.open{border-left-color:var(--copper);}
+.ledger .tx.open .hintx{color:var(--copper);}
+.ledger .ans .row{display:flex; justify-content:space-between; gap:1cqw; font-family:var(--mono); font-size:.95cqw; padding:.18cqw 0; color:var(--ink-2);}
+.ledger .ans .row b{font-weight:600;}
+.cr b{color:var(--green)} .dr b{color:var(--copper)}
+.eqchain{display:flex; flex-direction:column; gap:.7cqw;}
+.eqchain .step{font-family:var(--mono); font-size:1.3cqw; color:var(--ink); display:flex; gap:1.2cqw; align-items:baseline;}
+.eqchain .step .why{font-family:var(--body); font-size:1.05cqw; color:var(--muted);}
+</style>
+
+<!-- 1 -->
+<section class="slide" data-title="Title">
+  <canvas class="tex" data-guilloche="1"></canvas>
+  <div class="body" style="justify-content:space-between; position:relative">
+    <div>
+      <div class="eyebrow rv">B.A. International Studies &middot; Semester V &middot; WABIMJ-5006</div>
+      <h1 class="rv" style="--d:.08s; max-width:15ch; font-size:5.4cqw">Accounting for an Open Economy</h1>
+      <p class="deck-sub rv" style="--d:.16s; margin-top:1.2cqw; font-size:1.75cqw">
+        Unit I, topics 1.3 and 1.4 &mdash; the national income accounts, and national income
+        accounting once the border is open.
+      </p>
+    </div>
+    <div class="rv" style="--d:.24s; max-width:64ch; padding-left:1.2cqw; border-left:2px solid var(--copper)">
+      <p style="font-family:var(--display); font-size:1.35cqw; color:var(--ink); line-height:1.42; margin:0">&ldquo;Money is sent from one country to another for various purposes &mdash; tributes or subsidies, remittances of revenue, emigration of capital. The most usual purpose, however, is that of payment for goods.&rdquo;</p>
+      <p class="src" style="margin-top:.5cqw">JOHN STUART MILL, 1848 &mdash; EPIGRAPH TO FEENSTRA &amp; TAYLOR, CHAPTER 5</p>
+    </div>
+    <div class="grid g3 rv" style="--d:.3s; align-items:end">
+      <div><div class="kicker">Course</div><p style="font-size:1.3cqw; margin:.3cqw 0 0; color:var(--ink)">International Finance<br>and Financial Institutions</p></div>
+      <div><div class="kicker">Instructor</div><p style="font-size:1.3cqw; margin:.3cqw 0 0; color:var(--ink)">Dr. Tariq Masood<br>Session 2026&ndash;27</p></div>
+      <div style="text-align:right"><div class="hint">&larr; &rarr; to move &middot; N for notes &middot; F for full screen</div></div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Open with the Mill quotation on the board. It is 1848, and he has already listed almost every line of a modern current account: transfers, remittances, capital flows, and payment for goods. The accounts we are about to build are simply that list, made countable.</p>
+    <p>Set expectations: this is the technical heart of Unit I. Two lectures of definitions and identities, and everything afterwards &mdash; exchange rates, crises, IMF programmes &mdash; is read through these accounts.</p>
+  </template>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="Where we are">
+  <div class="eyebrow rv">Unit I, continued</div>
+  <h2 class="rv" style="--d:.05s">From the story to the ledger</h2>
+  <p class="lead rv" style="--d:.1s; max-width:86ch">Last time we argued that trade, production and finance are globally integrated. Today we ask the accountant's question: <strong>how would you know, and by how much?</strong></p>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card rv" style="--d:.18s; opacity:.6"><div class="num">1.1 &mdash; done</div><h3>Subject matter and scope</h3><p>Currency divisions and country divisions; the four questions the field answers.</p></div>
+      <div class="card rv" style="--d:.24s; opacity:.6"><div class="num">1.2 &mdash; done</div><h3>Globalisation of trade, production and finance</h3><p>Openness, value chains, FDI, and Levi's tests of how global the world really is.</p></div>
+      <div class="card rv" style="--d:.3s; border-color:var(--green); background:var(--green-soft)"><div class="num">1.3 &mdash; today</div><h3>The national income accounts</h3><p>GNE, GDP and GNI; the three approaches to measuring what an economy produces, spends and earns.</p></div>
+      <div class="card rv" style="--d:.36s; border-color:var(--green); background:var(--green-soft)"><div class="num">1.4 &mdash; today</div><h3>Accounting for an open economy</h3><p>The trade balance, factor income, transfers, the current account, the balance of payments, and external wealth.</p></div>
+    </div>
+    <div class="eq rv" style="--d:.44s; margin-top:2cqw; max-width:92ch">Promised last class, and delivered today:<br>Y = C + I + G + (X &minus; M) &nbsp;&nbsp;and&nbsp;&nbsp; S &minus; I = CA &nbsp;&nbsp;and&nbsp;&nbsp; CA + KA + FA = 0</div>
+  </div>
+  <template class="nt">
+    <p>Warn the class honestly: these two topics are the least glamorous and the most examinable in the unit. Every later argument &mdash; is India's deficit dangerous, is China's surplus unfair, should the IMF lend &mdash; is conducted in this vocabulary.</p>
+    <p>Textbook alignment: Feenstra &amp; Taylor, <em>International Macroeconomics</em>, Chapter 5, "National and International Accounts". We follow its structure closely today.</p>
+  </template>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="Why measure">
+  <div class="eyebrow rv">Motivation</div>
+  <h2 class="rv" style="--d:.05s">You cannot argue about a number you cannot define</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.1fr 1fr; gap:3cqw; align-items:center">
+      <div>
+        <p class="rv" style="--d:.14s">Feenstra and Taylor open the chapter with a claim worth taking seriously: <strong>the first task of any macroeconomist is to measure economic transactions.</strong> Everything else &mdash; research, forecasting, policy &mdash; sits on top of the measurement.</p>
+        <p class="rv" style="--d:.2s">Consider the arguments people are actually having:</p>
+        <ul class="tick rv" style="--d:.26s">
+          <li>Is the American trade deficit a problem, or a privilege?</li>
+          <li>Are the surpluses of China and the oil exporters a &ldquo;saving glut&rdquo;?</li>
+          <li>Is India's current account deficit sustainable at its current size?</li>
+          <li>Does a government budget deficit cause an external deficit?</li>
+        </ul>
+        <p class="rv" style="--d:.32s; margin-top:1.2cqw">Not one of these can be settled &mdash; or even stated precisely &mdash; without the accounts we build today.</p>
+      </div>
+      <div class="rv" style="--d:.2s">
+        <div class="eq" style="font-size:1.35cqw; line-height:1.55">&ldquo;To understand such debates, we must first know what is being talked about. What do all these measures mean, and how are they related?&rdquo;<span style="display:block; font-family:var(--mono); font-size:.9cqw; color:var(--muted); letter-spacing:.06em; margin-top:.6cqw">FEENSTRA &amp; TAYLOR, CHAPTER 5</span></div>
+        <div class="grid g2" style="gap:1.2cqw; margin-top:1.6cqw">
+          <div class="card"><div class="num">Closed economy</div><h3>One set of accounts</h3><p>The national income and product accounts trace a circular flow of payments inside the border.</p></div>
+          <div class="card"><div class="num">Open economy</div><h3>Two sets of accounts</h3><p>The same circular flow, plus the balance of payments accounts recording every crossing of the border.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>A good opening exercise: ask the class which of the four debates they have heard argued in the news, and what number was quoted. Almost always the number quoted is the <em>trade</em> deficit, when the relevant one is the <em>current account</em> deficit. That confusion is exactly what today fixes.</p>
+  </template>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="Closed circular flow">
+  <div class="eyebrow rv">1.3 &mdash; The national income accounts</div>
+  <h2 class="rv" style="--d:.05s">In a closed economy, three measures are one number</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.5fr 1fr; gap:3cqw; align-items:center">
+      <figure class="rv" style="--d:.14s">
+        <svg class="fig" viewBox="0 0 900 390" role="img" aria-label="The closed-economy circular flow: gross national expenditure is paid for final goods and services, becoming gross domestic product, which is paid out as factor income, becoming gross national income, which returns as expenditure.">
+          <defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+          <g class="rvf" style="--d:.12s">
+            <rect x="150" y="10" width="440" height="70" rx="2" fill="var(--green-soft)" stroke="var(--green)"/>
+            <text class="nodetext" font-size="16" text-anchor="middle" font-weight="600"><tspan x="370" y="38">Gross National Expenditure</tspan></text>
+            <text class="lbl" font-size="12.5" text-anchor="middle"><tspan x="370" y="60">GNE  =  C + I + G</tspan></text>
+          </g>
+          <g class="rvf" style="--d:.34s">
+            <line class="flow" x1="370" y1="86" x2="370" y2="148" stroke-width="1.4" marker-end="url(#c1)"/>
+            <text class="lbl" x="392" y="122" font-size="11.5">payments for final goods and services</text>
+          </g>
+          <g class="rvf" style="--d:.46s">
+            <rect class="nodefill" x="150" y="155" width="440" height="70" rx="2"/>
+            <text class="nodetext" font-size="16" text-anchor="middle" font-weight="600"><tspan x="370" y="183">Gross Domestic Product</tspan></text>
+            <text class="lbl" font-size="12.5" text-anchor="middle"><tspan x="370" y="205">GDP  =  value added, sales minus intermediates</tspan></text>
+          </g>
+          <g class="rvf" style="--d:.58s">
+            <line class="flow" x1="370" y1="231" x2="370" y2="293" stroke-width="1.4" marker-end="url(#c1)"/>
+            <text class="lbl" x="392" y="267" font-size="11.5">payments for factor services</text>
+          </g>
+          <g class="rvf" style="--d:.7s">
+            <rect class="nodefill" x="150" y="300" width="440" height="70" rx="2"/>
+            <text class="nodetext" font-size="16" text-anchor="middle" font-weight="600"><tspan x="370" y="328">Gross National Income</tspan></text>
+            <text class="lbl" font-size="12.5" text-anchor="middle"><tspan x="370" y="350">GNI  =  wages, profits, rent, interest</tspan></text>
+          </g>
+          <g class="rvf" style="--d:.84s">
+            <path class="flow accent" d="M590 335 L760 335 L760 45 L596 45" fill="none" stroke-width="1.4" marker-end="url(#c1)" color="var(--copper)"/>
+            <text class="lbl hi" font-size="11.5" x="774" y="180" text-anchor="start"><tspan x="774" y="172">income is</tspan><tspan x="774" y="188">spent again</tspan></text>
+          </g>
+        </svg>
+        <figcaption>Feenstra &amp; Taylor, Figure 5-1. The loop closes: everything spent is produced, everything produced is paid out as income, and all income is spent.</figcaption>
+      </figure>
+      <div>
+        <p class="rv" style="--d:.2s">Because the economy is closed, the nation can only spend what it earns and can only buy what it makes. So the three measures must coincide:</p>
+        <div class="eq rv" style="--d:.26s; font-size:1.5cqw; text-align:center">GNE = GDP = GNI</div>
+        <p class="rv" style="--d:.32s; margin-top:1.2cqw">This is the benchmark to hold in your head. Every complication in the next hour comes from the same source: <strong>once the border opens, these three numbers come apart</strong>, and the differences between them are exactly the international transactions.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Draw the loop on the board once by hand before showing the slide &mdash; students remember a diagram they watched being built.</p>
+    <p>Stress the definition of GDP as <strong>value added</strong>, not "the value of final goods produced". Feenstra flags this in a footnote because it is so commonly mis-stated: with trade in intermediates, the two are not the same. Worked example: firm A makes a &#8377;200 table using &#8377;100 of wood bought from firm B. Sales are &#8377;300, value added is &#8377;200. Now B exports another &#8377;50 of wood and GDP becomes &#8377;250 &mdash; even though no extra final good was made.</p>
+  </template>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="Three approaches">
+  <div class="eyebrow rv">1.3 &mdash; The national income accounts</div>
+  <h2 class="rv" style="--d:.05s">Three ways to count the same activity</h2>
+  <div class="body">
+    <div class="grid g3" style="gap:2cqw">
+      <div class="card rv" style="--d:.16s"><div class="num">Approach 01</div><h3>Expenditure &mdash; who spent</h3><p>Adds up demand for final goods and services.<br><strong>Key measure: GNE</strong></p></div>
+      <div class="card rv" style="--d:.22s"><div class="num">Approach 02</div><h3>Product &mdash; who produced</h3><p>Adds up output minus purchased inputs, that is, value added.<br><strong>Key measure: GDP</strong></p></div>
+      <div class="card rv" style="--d:.28s"><div class="num">Approach 03</div><h3>Income &mdash; who was paid</h3><p>Adds up payments to owners of labour, capital and land.<br><strong>Key measures: GNI, GNDI</strong></p></div>
+    </div>
+    <div class="grid g3 rv" style="--d:.36s; margin-top:2cqw; gap:2cqw">
+      <div>
+        <div class="kicker" style="padding-bottom:.4cqw; border-bottom:2px solid var(--green)">C &mdash; Consumption</div>
+        <p style="font-size:1.2cqw; margin-top:.8cqw">Household spending on final goods and services: non-durables such as food, durables such as a television, and services such as a haircut.</p>
+      </div>
+      <div>
+        <div class="kicker" style="padding-bottom:.4cqw; border-bottom:2px solid var(--green)">I &mdash; Investment</div>
+        <p style="font-size:1.2cqw; margin-top:.8cqw">Additions to the capital stock: a new house, a new factory, new equipment, and net increases in firms' inventories of unsold output.</p>
+      </div>
+      <div>
+        <div class="kicker" style="padding-bottom:.4cqw; border-bottom:2px solid var(--copper)">G &mdash; Government consumption</div>
+        <p style="font-size:1.2cqw; margin-top:.8cqw">Public purchases of goods and services &mdash; public works, defence, police, civil service. <strong>Not</strong> transfer payments such as pensions or unemployment benefit: those only move spending power around.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>The G definition is the classic exam trap. A pension payment is not government consumption; it is a transfer. The government has not bought anything &mdash; it has moved purchasing power from a taxpayer to a pensioner, who then shows up in C when they spend it. Counting it in G would double-count.</p>
+    <p>Second trap: "investment" here means physical capital formation, not buying shares. Buying shares is a transfer of ownership of an existing asset &mdash; it appears, if it crosses a border, in the financial account.</p>
+  </template>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="The ladder">
+  <div class="eyebrow rv">1.4 &mdash; Accounting for an open economy</div>
+  <h2 class="rv" style="--d:.05s">Open the border and the three measures come apart</h2>
+  <div class="body">
+    <figure>
+      <svg class="fig" viewBox="0 0 1180 500" role="img" aria-label="The open-economy ladder: gross national expenditure plus the trade balance gives gross domestic product; plus net factor income from abroad gives gross national income; plus net unilateral transfers gives gross national disposable income; and the financial and capital accounts return the flow to expenditure.">
+        <defs><marker id="o1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <line x1="520" y1="0" x2="520" y2="500" stroke="var(--hair-strong)" stroke-width="1" stroke-dasharray="6 5"/>
+        <text class="lbl" x="528" y="13" font-size="11">international border</text>
+        <g class="rvf" style="--d:.1s">
+          <rect x="40" y="16" width="300" height="58" rx="2" fill="var(--green-soft)" stroke="var(--green)"/>
+          <text class="nodetext" font-size="15" text-anchor="middle" font-weight="600"><tspan x="190" y="39">Gross National Expenditure</tspan></text>
+          <text class="lbl" font-size="12" text-anchor="middle"><tspan x="190" y="60">GNE = C + I + G</tspan></text>
+        </g>
+        <g class="rvf" style="--d:.24s"><line class="flow" x1="190" y1="80" x2="190" y2="130" stroke-width="1.4" marker-end="url(#o1)"/></g>
+        <g class="rvf" style="--d:.36s">
+          <rect class="nodefill" x="40" y="136" width="300" height="58" rx="2"/>
+          <text class="nodetext" font-size="15" text-anchor="middle" font-weight="600"><tspan x="190" y="159">Gross Domestic Product</tspan></text>
+          <text class="lbl" font-size="12" text-anchor="middle"><tspan x="190" y="180">GDP</tspan></text>
+        </g>
+        <g class="rvf" style="--d:.48s"><line class="flow" x1="190" y1="200" x2="190" y2="250" stroke-width="1.4" marker-end="url(#o1)"/></g>
+        <g class="rvf" style="--d:.6s">
+          <rect class="nodefill" x="40" y="256" width="300" height="58" rx="2"/>
+          <text class="nodetext" font-size="15" text-anchor="middle" font-weight="600"><tspan x="190" y="279">Gross National Income</tspan></text>
+          <text class="lbl" font-size="12" text-anchor="middle"><tspan x="190" y="300">GNI</tspan></text>
+        </g>
+        <g class="rvf" style="--d:.72s"><line class="flow" x1="190" y1="320" x2="190" y2="370" stroke-width="1.4" marker-end="url(#o1)"/></g>
+        <g class="rvf" style="--d:.84s">
+          <rect x="40" y="376" width="300" height="58" rx="2" fill="var(--green-soft)" stroke="var(--green)"/>
+          <text class="nodetext" font-size="15" text-anchor="middle" font-weight="600"><tspan x="190" y="399">Gross National Disposable Income</tspan></text>
+          <text class="lbl" font-size="12" text-anchor="middle"><tspan x="190" y="420">GNDI  =  Y</tspan></text>
+        </g>
+        <g class="rvf" style="--d:.3s">
+          <line class="flow" x1="594" y1="105" x2="352" y2="105" stroke-width="1.4" marker-end="url(#o1)"/>
+          <text class="lbl hi" x="470" y="95" text-anchor="middle" font-size="12.5">+ TB</text>
+          <rect class="nodefill" x="600" y="78" width="520" height="54" rx="2"/>
+          <text class="nodetext" font-size="14.5" x="620" y="102">Trade balance &nbsp;TB = EX &minus; IM</text>
+          <text class="lbl" font-size="11.5" x="620" y="121" text-anchor="start">exports and imports of goods and services &mdash; final and intermediate</text>
+        </g>
+        <g class="rvf" style="--d:.54s">
+          <line class="flow" x1="594" y1="225" x2="352" y2="225" stroke-width="1.4" marker-end="url(#o1)"/>
+          <text class="lbl hi" x="470" y="215" text-anchor="middle" font-size="12.5">+ NFIA</text>
+          <rect class="nodefill" x="600" y="198" width="520" height="54" rx="2"/>
+          <text class="nodetext" font-size="14.5" x="620" y="222">Net factor income from abroad &nbsp;NFIA</text>
+          <text class="lbl" font-size="11.5" x="620" y="241" text-anchor="start">wages, interest, profits and dividends earned across borders</text>
+        </g>
+        <g class="rvf" style="--d:.78s">
+          <line class="flow" x1="594" y1="345" x2="352" y2="345" stroke-width="1.4" marker-end="url(#o1)"/>
+          <text class="lbl hi" x="470" y="335" text-anchor="middle" font-size="12.5">+ NUT</text>
+          <rect class="nodefill" x="600" y="318" width="520" height="54" rx="2"/>
+          <text class="nodetext" font-size="14.5" x="620" y="342">Net unilateral transfers &nbsp;NUT</text>
+          <text class="lbl" font-size="11.5" x="620" y="361" text-anchor="start">aid and remittances &mdash; gifts, given without anything in return</text>
+        </g>
+        <g class="rvf" style="--d:.96s">
+          <path class="flow accent" d="M190 440 L190 456 L20 456 L20 45 L34 45" fill="none" stroke-width="1.4" marker-end="url(#o1)" color="var(--copper)"/>
+          <line class="flow accent" x1="594" y1="456" x2="200" y2="456" stroke-width="1.4" color="var(--copper)"/>
+          <text class="lbl hi" x="470" y="446" text-anchor="middle" font-size="12.5">+ FA + KA</text>
+          <rect x="600" y="429" width="520" height="54" rx="2" fill="var(--copper-soft)" stroke="var(--copper)"/>
+          <text class="hi" font-size="14.5" x="620" y="453">Financial account FA &nbsp;+&nbsp; Capital account KA</text>
+          <text class="lbl hi" font-size="11.5" x="620" y="472" text-anchor="start">purchases, sales and gifts of assets &mdash; how the gap is financed</text>
+        </g>
+        <g class="rvf" style="--d:1.1s">
+          <path d="M1132 78 L1140 78 L1140 372 L1132 372" fill="none" stroke="var(--copper)" stroke-width="1.2"/>
+          <text class="lbl hi" transform="rotate(-90 1163 225)" x="1163" y="225" text-anchor="middle" font-size="11.5">current account CA</text>
+        </g>
+      </svg>
+      <figcaption>Feenstra &amp; Taylor, Figure 5-2, simplified. Three adjustments take you from what a country <strong>spends</strong> to what it <strong>earns</strong>; the fourth, below the line, is how any gap between the two is paid for.</figcaption>
+    </figure>
+  </div>
+  <template class="nt">
+    <p>This is the diagram to keep on the board for the rest of the unit. Build it one rung at a time and make students say what each adjustment is before you reveal it.</p>
+    <p>The single most important observation: the first three adjustments together are the current account, and the fourth is the balance of payments' answer to it. Because the loop closes, the two must offset exactly &mdash; which is the identity we prove later in the lecture.</p>
+    <p>Note the older terminology problem, flagged by Feenstra: what is now split into "financial account" and "capital account" used to be called the capital account as a whole. Older books and many newspapers still use the old usage.</p>
+  </template>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="Trade balance">
+  <div class="eyebrow rv">Rung one &mdash; from expenditure to product</div>
+  <h2 class="rv" style="--d:.05s">GDP = GNE + TB</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:3cqw; align-items:center">
+      <div>
+        <div class="eq rv" style="--d:.12s; font-size:1.5cqw">GDP = C + I + G + (EX &minus; IM)<span style="display:block; font-size:.95cqw; color:var(--muted); margin-top:.4cqw">EQUATION 5-1 &mdash; THE TRADE BALANCE TB = EX &minus; IM</span></div>
+        <p class="rv" style="--d:.2s; margin-top:1.4cqw">Some of what a country spends goes to foreign producers, so <strong>imports are subtracted</strong>. Some of what it produces is bought by foreigners, so <strong>exports are added</strong>. What is left is production inside the border.</p>
+        <ul class="tick rv" style="--d:.26s">
+          <li><strong>TB &gt; 0</strong> &mdash; a trade surplus: the country sells more than it buys.</li>
+          <li><strong>TB &lt; 0</strong> &mdash; a trade deficit. The United States in 2009: TB = &minus;$392 billion.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card rv" style="--d:.24s; border-color:var(--copper); background:var(--copper-soft)">
+          <div class="num">Do not forget intermediates</div>
+          <h3>EX and IM include parts, not just finished goods</h3>
+          <p>Exported and imported <em>intermediate</em> goods belong here too, because in a product measure they are output and purchased inputs. Feenstra reports that as of 2010, and probably for the first time in history, world trade consisted more of intermediate goods (about 60%) than final goods (about 40%).</p>
+        </div>
+        <p class="rv" style="--d:.32s; margin-top:1.4cqw; padding-left:1.1cqw; border-left:2px solid var(--green)">This is the same fact we met last week as the <strong>smile curve</strong>. It is why GDP is defined as value added, and why "the value of final goods produced" is a definition to avoid.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Run the two-firm numerical example here if you did not use it earlier: firm A makes a &#8377;200 table from &#8377;100 of firm B's wood; GDP is &#8377;200. If B exports &#8377;50 of extra wood, GDP is &#8377;250, and no additional final good exists. Value added, not final output.</p>
+    <p>Link forward: because the trade balance is the largest component of the current account for most countries, journalists use "trade deficit" and "current account deficit" interchangeably. Two rungs from now the class will see why that is wrong.</p>
+  </template>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="Factor income">
+  <div class="eyebrow rv">Rung two &mdash; from product to income</div>
+  <h2 class="rv" style="--d:.05s">GNI = GDP + NFIA</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:3cqw; align-items:center">
+      <div>
+        <div class="eq rv" style="--d:.12s; font-size:1.5cqw">GNI = C + I + G + (EX &minus; IM) + (EX<sub>FS</sub> &minus; IM<sub>FS</sub>)<span style="display:block; font-size:.95cqw; color:var(--muted); margin-top:.4cqw">EQUATION 5-2 &mdash; NFIA = FACTOR SERVICE EXPORTS MINUS IMPORTS</span></div>
+        <p class="rv" style="--d:.2s; margin-top:1.4cqw">Land, labour and capital can work in one country while being owned in another. <strong>GDP asks where output was produced. GNI asks who was paid for it.</strong></p>
+        <p class="rv" style="--d:.26s">United States, 2009: income receipts of $589 bn, income payments of $484 bn, so NFIA was <strong>+$105 bn</strong>. GDP of $14,256 bn became GNI of $14,361 bn.</p>
+      </div>
+      <div class="grid g2 rv" style="--d:.3s; gap:1.4cqw">
+        <div class="card"><div class="num">Exporting factor services</div><h3>Income flowing in</h3><p>An Indian architect on contract in Dubai. An Indian company's profits from a subsidiary in Kenya. Interest on foreign bonds held by an Indian bank.</p></div>
+        <div class="card"><div class="num">Importing factor services</div><h3>Income flowing out</h3><p>Profits of a foreign-owned car plant in Chennai, repatriated to its parent. Interest paid to foreign holders of Indian government debt.</p></div>
+        <div class="card" style="grid-column:1 / -1; border-color:var(--copper)"><div class="num">Note the wording</div><h3>"Import" and "export" describe the service, not the money</h3><p>A country that hosts a great deal of foreign investment <em>imports</em> capital services, and pays for them. That payment leaves the country as an income outflow &mdash; the subject of the next slide.</p></div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Students find the direction confusing. Anchor it: the <em>service</em> travels one way, the <em>payment</em> travels the other. A foreign-owned factory in Chennai supplies capital services to India; India pays for them; the payment is an outflow that reduces Indian GNI below Indian GDP.</p>
+    <p>This is also where remittances get mis-filed. Wages earned by a short-term worker abroad are factor income (NFIA). Money sent home by a long-settled migrant who is a resident of the host country is a transfer (NUT), two rungs down. Residency, not nationality, decides.</p>
+  </template>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="Celtic Tiger">
+  <div class="eyebrow rv">Application &mdash; why the distinction matters</div>
+  <h2 class="rv" style="--d:.05s">Celtic Tiger, or paper tiger?</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.6fr 1fr; gap:3cqw; align-items:center">
+      <figure class="rv" style="--d:.14s">
+        <div class="chart-wrap" data-chart="ireland"></div>
+        <figcaption>Irish GDP and GNI per person, 1980&ndash;2008. The gap between the two lines is income earned in Ireland but owed to foreign owners.</figcaption>
+        <div class="src">Source: based on Feenstra &amp; Taylor, Figure 5-3 (OECD and IMF data), real 2000 euros. Endpoints as reported; intermediate years approximate.</div>
+      </figure>
+      <div>
+        <p class="rv" style="--d:.2s">From 1980 to 2007 Irish real GDP per person grew at a remarkable <strong>4.1% a year</strong>. Foreign firms built the factories that did it &mdash; by some estimates <strong>75%</strong> of Irish industrial GDP originated in foreign-owned plants.</p>
+        <p class="rv" style="--d:.26s">Those owners expected to be paid. By 2000, net factor income payments abroad reached <strong>15&ndash;20% of Irish GDP</strong>, and stayed there.</p>
+        <div class="stat rv" style="--d:.32s; border-left-color:var(--copper)"><span class="v">4th &rarr; 17th</span><span class="l">Ireland's rank among OECD economies in 2004: fourth richest by GDP per person, only seventeenth by GNI per person</span></div>
+        <p class="rv" style="--d:.38s; margin-top:1cqw">Feenstra's verdict: a country that relies on foreign investment to grow <strong>is not getting a free lunch</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>The best twenty minutes of discussion in this whole unit. Ask directly: <strong>which number should a government maximise, GDP or GNI?</strong> And then: which one do governments actually quote?</p>
+    <p>Bring it home. India hosts substantial foreign direct investment, and profits repatriated by foreign-owned firms are a growing debit in the primary income account. India's GNI is therefore below its GDP &mdash; nothing like Ireland's 15%, but the mechanism is identical, and the gap widens as FDI stocks accumulate.</p>
+    <p>Honest caveat worth telling students: part of Ireland's gap is an accounting artefact. Tax incentives encouraged multinationals to book profits in low-tax Irish subsidiaries, inflating measured Irish GDP. Many economists treat Irish GNI as the truer measure &mdash; a reminder that accounts are constructed, not found.</p>
+  </template>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="Transfers">
+  <div class="eyebrow rv">Rung three &mdash; from income to disposable income</div>
+  <h2 class="rv" style="--d:.05s">GNDI = GNI + NUT</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1.35fr; gap:2.8cqw; align-items:center">
+      <div>
+        <div class="eq rv" style="--d:.12s; font-size:1.35cqw">Y = C + I + G + (EX &minus; IM) + (EX<sub>FS</sub> &minus; IM<sub>FS</sub>) + (UT<sub>IN</sub> &minus; UT<sub>OUT</sub>)<span style="display:block; font-size:.9cqw; color:var(--muted); margin-top:.4cqw">EQUATION 5-3 &mdash; GROSS NATIONAL DISPOSABLE INCOME</span></div>
+        <p class="rv" style="--d:.2s; margin-top:1.2cqw">Some income crosses borders with <strong>nothing given in return</strong>: official development assistance, charitable gifts, food and medical aid in kind, and migrants' remittances to their families.</p>
+        <p class="rv" style="--d:.26s">Economists prefer GNDI. GDP omits factor income; GNI omits transfers; <strong>GNDI is closest to the resources actually available to a nation's households</strong>.</p>
+        <div class="stat rv" style="--d:.32s; border-left-color:var(--copper)"><span class="v">223%</span><span class="l">Net unilateral transfers as a share of gross national income in Liberia, averaged over 2000&ndash;2008 &mdash; more than twice its own income</span></div>
+      </div>
+      <figure class="rv" style="--d:.18s">
+        <div class="chart-wrap" data-chart="transfers"></div>
+        <figcaption>Selected countries where net unilateral transfers exceeded 15% of GNI, average 2000&ndash;2008 &mdash; some aid-dependent, others living on remittances.</figcaption>
+        <div class="src">Source: Feenstra &amp; Taylor, Figure 5-4, from World Bank World Development Indicators. Liberia (223%) omitted from the chart for scale.</div>
+      </figure>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Two different stories sit in one chart, and it is worth separating them: aid dependence (Liberia, Burundi, Eritrea, Nepal) and remittance dependence (Tonga, Samoa, Jordan, El Salvador, Cape Verde). The accounting is identical; the politics could not be more different.</p>
+    <p>India is the world's largest recipient of remittances in absolute terms &mdash; roughly $129 billion in 2024 &mdash; but as a share of GNI it is small, around 3%. Absolute size and dependence are different questions. Good exam distinction.</p>
+    <p>If time allows, run the "Are rich countries stingy?" debate from the chapter's Headlines box: US official development assistance was 0.15% of GNI in 2003 against Norway's 0.92%, and the UN target of 0.7%. But ODA is only one line of NUT &mdash; private giving, and some military and humanitarian spending, are excluded. How you measure generosity determines who looks generous.</p>
+  </template>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="US accounts 2009">
+  <div class="eyebrow rv">The ladder, with real numbers</div>
+  <h2 class="rv" style="--d:.05s">One country, four aggregates, three adjustments</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.4fr 1fr; gap:3cqw; align-items:center">
+      <div class="rv" style="--d:.14s">
+        <table class="acct">
+          <tr><td class="op"></td><td class="sym">C</td><td>Consumption</td><td class="n">10,089</td></tr>
+          <tr><td class="op">+</td><td class="sym">I</td><td>Investment</td><td class="n">1,629</td></tr>
+          <tr><td class="op">+</td><td class="sym">G</td><td>Government consumption</td><td class="n">2,931</td></tr>
+          <tr class="agg"><td class="op">=</td><td class="sym">GNE</td><td>Gross national expenditure</td><td class="n">14,649</td></tr>
+          <tr><td class="op">+</td><td class="sym">TB</td><td>Trade balance</td><td class="n">&minus;392</td></tr>
+          <tr class="agg"><td class="op">=</td><td class="sym">GDP</td><td>Gross domestic product</td><td class="n">14,256</td></tr>
+          <tr><td class="op">+</td><td class="sym">NFIA</td><td>Net factor income from abroad</td><td class="n">+105</td></tr>
+          <tr class="agg"><td class="op">=</td><td class="sym">GNI</td><td>Gross national income</td><td class="n">14,361</td></tr>
+          <tr><td class="op">+</td><td class="sym">NUT</td><td>Net unilateral transfers</td><td class="n">&minus;125</td></tr>
+          <tr class="agg"><td class="op">=</td><td class="sym">GNDI</td><td>Gross national disposable income</td><td class="n">14,236</td></tr>
+        </table>
+        <div class="src" style="margin-top:.8cqw">United States, 2009, US$ billion. Source: Feenstra &amp; Taylor, Table 5-1, from the US Bureau of Economic Analysis.</div>
+      </div>
+      <div>
+        <p class="rv" style="--d:.22s">Read down the column and you have the whole of topic 1.4 in ten lines. The three adjustments are small next to the aggregates &mdash; together they move the number by less than 3% &mdash; but they are the only part that concerns us.</p>
+        <p class="rv" style="--d:.28s">Notice what the signs say about the United States in 2009. It <strong>bought more goods than it sold</strong> (TB negative), <strong>earned more on its foreign assets than it paid out</strong> (NFIA positive), and <strong>gave more away than it received</strong> (NUT negative).</p>
+        <div class="eq rv" style="--d:.34s; margin-top:1.2cqw">GNDI 14,236 &lt; GNE 14,649<br><span style="color:var(--muted); font-size:.95cqw">The country spent more than it earned. By how much? That is the current account, and it is the next slide.</span></div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Have the class compute the current account themselves before you show slide 12: &minus;392 + 105 &minus; 125 = &minus;$412 billion, which is also 14,236 &minus; 14,649. Two routes, same number. That moment does more for understanding than any amount of explanation.</p>
+    <p>(The BOP-basis figure in the next tables is &minus;$378 billion rather than &minus;$412 billion, because the national accounts and the international transactions accounts use slightly different definitions of US territory. Worth mentioning once, so students are not thrown when the numbers differ by source.)</p>
+  </template>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-title="The two identities">
+  <div class="eyebrow rv">The heart of the topic</div>
+  <h2 class="rv" style="--d:.05s">Two identities, and the second is only the first rearranged</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.15fr 1fr; gap:3cqw; align-items:center">
+      <div class="eqchain">
+        <div class="step rv" style="--d:.14s"><span>Y = C + I + G + <b>CA</b></span><span class="why">the open-economy national income identity</span></div>
+        <div class="step rv" style="--d:.22s"><span>Y &minus; C &minus; G = I + CA</span><span class="why">subtract C and G from both sides</span></div>
+        <div class="step rv" style="--d:.3s"><span>S &equiv; Y &minus; C &minus; G</span><span class="why">define national saving</span></div>
+        <div class="step rv" style="--d:.38s" ><span style="color:var(--copper); font-weight:600">S = I + CA</span><span class="why">the current account identity</span></div>
+        <div class="step rv" style="--d:.46s"><span style="color:var(--copper); font-weight:600">CA = S &minus; I</span><span class="why">the form you will use most</span></div>
+      </div>
+      <div>
+        <p class="rv" style="--d:.2s">These give <strong>two readings of the same deficit</strong>, and both are correct:</p>
+        <div class="card rv" style="--d:.26s; margin-bottom:1.2cqw"><div class="num">Reading one &mdash; expenditure</div><h3>Spending more than you earn</h3><p>CA &lt; 0 means GNE &gt; GNDI. The country is absorbing more goods, services and income than it produces and receives.</p></div>
+        <div class="card rv" style="--d:.32s"><div class="num">Reading two &mdash; saving</div><h3>Saving less than you invest</h3><p>CA &lt; 0 means S &lt; I. The country's own saving does not cover its investment, so the rest is borrowed from abroad.</p></div>
+        <p class="rv" style="--d:.4s; margin-top:1.2cqw">This is why the press can describe the same deficit as &ldquo;living beyond our means&rdquo; and as &ldquo;a shortage of national saving&rdquo; without contradicting itself.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Do the algebra on the board, slowly. It is three lines, and once students have done it themselves they stop treating S = I + CA as something to memorise.</p>
+    <p>The crucial warning: this is an <strong>identity</strong>, not a theory. It holds by construction, in every country, in every year, whatever anyone's behaviour. It therefore cannot tell you which way causation runs. A deficit could reflect a collapse in saving or an investment boom &mdash; and, as the next slides show, the difference matters enormously for whether you should worry.</p>
+  </template>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-title="Saving and deficits">
+  <div class="eyebrow rv">Breaking saving apart</div>
+  <h2 class="rv" style="--d:.05s">Are the twin deficits really twins?</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1.25fr; gap:2.8cqw; align-items:center">
+      <div class="eqchain">
+        <div class="step rv" style="--d:.14s"><span>S<sub>p</sub> = Y &minus; T &minus; C</span><span class="why">private saving</span></div>
+        <div class="step rv" style="--d:.2s"><span>S<sub>g</sub> = T &minus; G</span><span class="why">public saving &mdash; the budget balance</span></div>
+        <div class="step rv" style="--d:.26s"><span>S = S<sub>p</sub> + S<sub>g</sub></span><span class="why">taxes cancel in the aggregate</span></div>
+        <div class="step rv" style="--d:.32s"><span style="color:var(--copper); font-weight:600">CA = S<sub>p</sub> + S<sub>g</sub> &minus; I</span><span class="why">equation 5-10</span></div>
+      </div>
+      <div>
+        <p class="rv" style="--d:.2s">Read literally, the last line seems to say a bigger budget deficit must produce a bigger current account deficit &mdash; the famous <strong>twin deficits</strong>. Two things stop that being automatic.</p>
+        <div class="grid g2 rv" style="--d:.28s; gap:1.3cqw">
+          <div class="card"><div class="num">Objection one</div><h3>Private saving may offset it</h3><p><strong>Ricardian equivalence</strong>: if a tax cut today means a tax rise tomorrow, households save the difference, private saving rises as public saving falls, and CA does not move. Empirically the offset is real but only partial.</p></div>
+          <div class="card"><div class="num">Objection two</div><h3>Investment may move too</h3><p>The large US deficits of the early 1990s came from an <strong>investment boom</strong> while total saving was rising. Government deficit falling, current account deficit rising &mdash; the opposite of twins.</p></div>
+        </div>
+        <div class="stat rv" style="--d:.38s; margin-top:1.2cqw; border-left-color:var(--copper)"><span class="v">0.2&ndash;0.4</span><span class="l">Percentage points of GDP by which the current account deficit moves when the government deficit moves by one point &mdash; a partial Ricardian offset, not a twin</span></div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>&ldquo;Cousins, not twins&rdquo; is the phrase students remember.</p>
+    <p>Make the deeper point about identities: CA = S<sub>p</sub> + S<sub>g</sub> &minus; I is always true, so it constrains the four variables but predicts none of them. Anyone who claims the budget deficit <em>causes</em> the external deficit is making a behavioural claim that has to be argued and tested, not read off the identity.</p>
+    <p>Indian application: the fiscal consolidation debate of the 2010s and the current account deficit of 2011&ndash;13 are usually discussed as if the link were mechanical. Ask the class what else was happening then &mdash; the answer is a gold and oil import surge, which is an I and C story, not a T and G story.</p>
+  </template>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-title="Global imbalances">
+  <div class="eyebrow rv">Application</div>
+  <h2 class="rv" style="--d:.05s">Global imbalances: someone's deficit is someone's surplus</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.6fr 1fr; gap:3cqw; align-items:center">
+      <figure class="rv" style="--d:.14s">
+        <div class="chart-wrap" data-chart="usca"></div>
+        <figcaption>The United States current account balance as a share of GDP, 1980&ndash;2009.</figcaption>
+        <div class="src">Source: based on Feenstra &amp; Taylor, Figures 5-6 and 5-7, from IMF and US Bureau of Economic Analysis data. Approximate.</div>
+      </figure>
+      <div>
+        <p class="rv" style="--d:.2s">In the industrial countries, saving and investment both fell over three decades. In the United States saving fell <strong>faster</strong> than investment, so a deficit opened; in Japan investment fell faster than saving, so a surplus opened of some 3&ndash;5% of GDP.</p>
+        <p class="rv" style="--d:.26s">The mirror image sits in the developing world. Emerging markets and oil producers raised <strong>both</strong> saving and investment after the 1990s &mdash; saving by more &mdash; and moved into surplus, financing the industrial countries' deficits.</p>
+        <p class="rv" style="--d:.32s; padding-left:1.1cqw; border-left:2px solid var(--copper)">For the world as a whole, saving and investment ratios <strong>fell</strong> over the period, from near 26% of world GDP to nearer 20%. Global imbalances grew while global saving shrank.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Emphasise the adding-up constraint: the world cannot run a current account deficit with itself. Every deficit is somebody's surplus, so "global imbalances" is a description of a pattern, not of a problem &mdash; whether it is a problem depends on why the pattern exists.</p>
+    <p>Two competing readings, both worth putting to the class. Bernanke's <em>saving glut</em>: emerging-market saving pushed capital into the United States and depressed world interest rates. The alternative: American profligacy and a dysfunctional financial system pulled the capital in. The identity is consistent with both, which is precisely why the argument continues.</p>
+    <p>Feenstra ties the demographic thread in too: ageing populations with fewer workers per retiree tend to save less, which helps explain the long decline in industrial-country saving.</p>
+  </template>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-title="Asset accounts">
+  <div class="eyebrow rv">1.4 &mdash; below the line</div>
+  <h2 class="rv" style="--d:.05s">The other half of the ledger: trading assets</h2>
+  <div class="body">
+    <div class="grid g2" style="gap:2.8cqw">
+      <div class="rv" style="--d:.16s">
+        <div class="kicker" style="padding-bottom:.5cqw; border-bottom:2px solid var(--green)">The financial account &nbsp;FA = EX<sub>A</sub> &minus; IM<sub>A</sub></div>
+        <ul class="tick" style="margin-top:1cqw">
+          <li>Records every transaction in <strong>financial and real assets</strong> between residents and non-residents &mdash; bonds, loans, equities, land, factories.</li>
+          <li>&ldquo;Movement&rdquo; means a change of <strong>ownership</strong>, not a change of location. A factory does not travel when it is sold.</li>
+          <li>A country that <strong>exports assets</strong> is selling claims on itself: it is borrowing.</li>
+        </ul>
+      </div>
+      <div class="rv" style="--d:.24s">
+        <div class="kicker" style="padding-bottom:.5cqw; border-bottom:2px solid var(--copper)">The capital account &nbsp;KA = KA<sub>IN</sub> &minus; KA<sub>OUT</sub></div>
+        <ul class="tick" style="margin-top:1cqw">
+          <li>Small and technical for most rich countries: <strong>gifts of assets</strong>, and trade in non-produced non-financial assets such as patents, copyrights and trademarks.</li>
+          <li>The important case is <strong>debt forgiveness</strong> &mdash; a gift of an asset, which must be recorded so the books still balance.</li>
+          <li>It can matter a great deal for a poor country in a year when debt is written off.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="grid g2 rv" style="--d:.34s; margin-top:1.6cqw; gap:2.8cqw">
+      <div class="card"><div class="num">External asset</div><h3>A claim we hold on them</h3><p>An Indian firm's factory in Kenya. Foreign bonds in an Indian bank's portfolio. The RBI's holdings of US Treasury bills.</p></div>
+      <div class="card"><div class="num">External liability</div><h3>A claim they hold on us</h3><p>A foreign firm's plant in Chennai. Indian government bonds held abroad. Foreign portfolio holdings of Indian equities.</p></div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Insist on the asset/liability language now, because external wealth at the end of the lecture is built entirely from it: assets are what the world owes us, liabilities are what we owe the world.</p>
+    <p>The terminology warning is worth repeating: before the 1993 revision of the System of National Accounts, "capital account" meant what we now call the financial account. Older textbooks, and a good deal of journalism, still use it that way &mdash; including the phrase "capital account convertibility", which is about the financial account in the modern sense. Unit III uses that phrase.</p>
+  </template>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-title="BOP identity">
+  <div class="eyebrow rv">The result everything has been building to</div>
+  <h2 class="rv" style="--d:.05s">CA + KA + FA = 0</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1.2fr; gap:3cqw; align-items:center">
+      <div>
+        <div class="eq rv" style="--d:.12s; font-size:1.9cqw; text-align:center; padding:1.4cqw">CA + KA + FA = 0<span style="display:block; font-family:var(--mono); font-size:.9cqw; color:var(--muted); letter-spacing:.06em; margin-top:.6cqw">THE BALANCE OF PAYMENTS IDENTITY &mdash; EQUATION 5-12</span></div>
+        <p class="rv" style="--d:.2s; margin-top:1.4cqw">We began at GNE, added everything in the balance of payments accounts, and arrived back at GNE. If adding all of it changes nothing, then <strong>all of it must sum to zero</strong>.</p>
+        <p class="rv" style="--d:.26s">The reason is not economics but bookkeeping: <strong>every transaction has two sides</strong>. Every credit somewhere is a debit somewhere else.</p>
+        <div class="stat rv" style="--d:.32s; border-left-color:var(--copper)"><span class="v">Lender / borrower</span><span class="l">A country with a current account surplus must be a net buyer of assets &mdash; a lender. A country in deficit must be a net seller &mdash; a borrower.</span></div>
+      </div>
+      <div class="grid g2 rv" style="--d:.24s; gap:1.6cqw">
+        <div>
+          <div class="kicker" style="padding-bottom:.5cqw; border-bottom:2px solid var(--green)">Six credits &nbsp;(+)</div>
+          <ul class="tick" style="margin-top:.9cqw; font-size:1.2cqw">
+            <li>Exports of goods and services &nbsp;<span class="src" style="display:inline">+EX</span></li>
+            <li>Exports of factor services &nbsp;<span class="src" style="display:inline">+EX<sub>FS</sub></span></li>
+            <li>Transfers received &nbsp;<span class="src" style="display:inline">+UT<sub>IN</sub></span></li>
+            <li>Capital transfers received &nbsp;<span class="src" style="display:inline">+KA<sub>IN</sub></span></li>
+            <li>Exports of home assets &nbsp;<span class="src" style="display:inline">+EX<sup>H</sup><sub>A</sub></span></li>
+            <li>Exports of foreign assets &nbsp;<span class="src" style="display:inline">+EX<sup>F</sup><sub>A</sub></span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="kicker" style="padding-bottom:.5cqw; border-bottom:2px solid var(--copper)">Six debits &nbsp;(&minus;)</div>
+          <ul class="tick" style="margin-top:.9cqw; font-size:1.2cqw">
+            <li>Imports of goods and services &nbsp;<span class="src" style="display:inline">&minus;IM</span></li>
+            <li>Imports of factor services &nbsp;<span class="src" style="display:inline">&minus;IM<sub>FS</sub></span></li>
+            <li>Transfers given &nbsp;<span class="src" style="display:inline">&minus;UT<sub>OUT</sub></span></li>
+            <li>Capital transfers given &nbsp;<span class="src" style="display:inline">&minus;KA<sub>OUT</sub></span></li>
+            <li>Imports of home assets &nbsp;<span class="src" style="display:inline">&minus;IM<sup>H</sup><sub>A</sub></span></li>
+            <li>Imports of foreign assets &nbsp;<span class="src" style="display:inline">&minus;IM<sup>F</sup><sub>A</sub></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>The identity is the single most quoted and most misunderstood equation in the subject. Two corrections to make explicitly:</p>
+    <ul>
+      <li>It does not say a country's external position is fine. It says the accounts add up. A country in crisis satisfies this identity exactly as well as one in surplus.</li>
+      <li>It does not say a deficit is "financed" in any comfortable sense. It says that whatever was not paid for out of income was paid for by selling assets &mdash; which may be a healthy inflow of long-term investment or a desperate sale of reserves. The identity cannot tell you which; the composition of FA can.</li>
+    </ul>
+    <p>Next slide makes the double-entry principle concrete. Do not skip it &mdash; it is where the identity stops being magic.</p>
+  </template>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-title="Double entry">
+  <div class="eyebrow rv">How the books actually balance</div>
+  <h2 class="rv" style="--d:.05s">Every transaction, twice</h2>
+  <p class="lead rv" style="--d:.1s; max-width:96ch">Four transactions from Feenstra &amp; Taylor. Decide where each is recorded &mdash; then click to check.</p>
+  <div class="body">
+    <div class="ledger rv" style="--d:.16s">
+      <div class="tx" tabindex="0" role="button">
+        <div class="q"><span>A tourist spends <strong>$110</strong> on dinner in Paris and pays with an American card.</span><span class="hintx">click to reveal</span></div>
+        <div class="ans">
+          <div class="row dr"><span>Current account &mdash; import of a foreign service</span><b>&minus;IM &nbsp;&minus;$110</b></div>
+          <div class="row cr"><span>Financial account &mdash; the bar now holds a claim on an American card company: a home asset has been exported</span><b>+EX<sup>H</sup><sub>A</sub> &nbsp;+$110</b></div>
+        </div>
+      </div>
+      <div class="tx" tabindex="0" role="button">
+        <div class="q"><span>Two wine merchants each ship the other a case worth <strong>$36</strong>. No money changes hands.</span><span class="hintx">click to reveal</span></div>
+        <div class="ans">
+          <div class="row cr"><span>Current account &mdash; goods exported</span><b>+EX &nbsp;+$36</b></div>
+          <div class="row dr"><span>Current account &mdash; goods imported. Barter needs no financial entry at all</span><b>&minus;IM &nbsp;&minus;$36</b></div>
+        </div>
+      </div>
+      <div class="tx" tabindex="0" role="button">
+        <div class="q"><span>A charity ships <strong>$5,000</strong> of relief supplies abroad after an earthquake.</span><span class="hintx">click to reveal</span></div>
+        <div class="ans">
+          <div class="row cr"><span>Current account &mdash; goods exported, even though nobody paid for them</span><b>+EX &nbsp;+$5,000</b></div>
+          <div class="row dr"><span>Current account &mdash; the gift itself, recorded as a unilateral transfer given</span><b>&minus;UT<sub>OUT</sub> &nbsp;&minus;$5,000</b></div>
+        </div>
+      </div>
+      <div class="tx" tabindex="0" role="button">
+        <div class="q"><span>A government forgives <strong>$1 billion</strong> of debt owed to it by another country.</span><span class="hintx">click to reveal</span></div>
+        <div class="ans">
+          <div class="row dr"><span>Capital account &mdash; a capital transfer given</span><b>&minus;KA<sub>OUT</sub> &nbsp;&minus;$1 bn</b></div>
+          <div class="row cr"><span>Financial account &mdash; the cancelled claim leaves home ownership: a foreign asset has been exported, and external assets fall</span><b>+EX<sup>F</sup><sub>A</sub> &nbsp;+$1 bn</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Run this as cold-calling, not as a reveal. Read each transaction, take two answers from the room, then click.</p>
+    <p>The third one is the trap and the prize: aid <em>in kind</em> shows up as an export in the current account. A country can therefore appear to "export" more because it gave goods away. The offsetting transfer debit is what stops the accounts from lying.</p>
+    <p>The fourth is worth slowing down for. Forgiving a debt makes a country poorer, and the accounts show it: an external asset disappears. Students often expect debt relief to appear as generosity in the current account &mdash; it does not, because it is a gift of an <em>asset</em>, which is the capital account's job.</p>
+  </template>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-title="Statistical discrepancy">
+  <div class="eyebrow rv">The accounts in practice</div>
+  <h2 class="rv" style="--d:.05s">They balance in theory. In practice, they are made to.</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.15fr 1fr; gap:3cqw; align-items:center">
+      <div class="rv" style="--d:.14s">
+        <table class="acct">
+          <tr class="agg"><td class="sym">CA</td><td>Balance on current account</td><td class="n">&minus;378</td></tr>
+          <tr><td class="sym">TB</td><td style="padding-left:2cqw">of which: goods and services</td><td class="n">&minus;375</td></tr>
+          <tr><td class="sym">NFIA</td><td style="padding-left:2cqw">of which: income balance</td><td class="n">+121</td></tr>
+          <tr><td class="sym">NUT</td><td style="padding-left:2cqw">of which: net unilateral transfers</td><td class="n">&minus;125</td></tr>
+          <tr class="agg"><td class="sym">KA</td><td>Balance on capital account</td><td class="n">0</td></tr>
+          <tr class="agg"><td class="sym">FA</td><td>Balance on financial account</td><td class="n">+165</td></tr>
+          <tr><td class="sym"></td><td style="padding-left:2cqw">US-owned assets abroad, net increase</td><td class="n">&minus;140</td></tr>
+          <tr><td class="sym"></td><td style="padding-left:2cqw">Foreign-owned assets in the US, net increase</td><td class="n">+306</td></tr>
+          <tr><td class="sym"></td><td style="padding-left:2cqw">of which: foreign official assets</td><td class="n">+450</td></tr>
+          <tr class="fin"><td class="sym">SD</td><td>Statistical discrepancy</td><td class="n">+213</td></tr>
+          <tr class="agg"><td class="sym"></td><td>CA + KA + FA + SD</td><td class="n">0</td></tr>
+        </table>
+        <div class="src" style="margin-top:.8cqw">United States, 2009, US$ billion. Source: Feenstra &amp; Taylor, Table 5-2, from the US Bureau of Economic Analysis, international transactions accounts.</div>
+      </div>
+      <div>
+        <p class="rv" style="--d:.22s">&minus;378 + 0 + 165 = <strong>&minus;213</strong>, not zero. The identity is exact; the measurement is not. So statisticians add an item, the <strong>statistical discrepancy</strong>, defined as whatever makes the sum come out right.</p>
+        <div class="eq rv" style="--d:.28s">SD = &minus;(CA + KA + FA)</div>
+        <p class="rv" style="--d:.34s; margin-top:1.2cqw">Where does the error come from? Some of it is smuggling and the evasion of trade taxes. Most of it, Feenstra suggests, is <strong>financial</strong>: concealed or illicit movements of income and assets, money laundering, and capital tax evasion.</p>
+        <p class="rv" style="--d:.4s; padding-left:1.1cqw; border-left:2px solid var(--copper)">A $213 billion gap is not a rounding error. Treat the size of the discrepancy as information in its own right.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Point out line by line what the United States looked like in 2009: a large deficit on goods, a <em>surplus</em> on income, and a financial account surplus financing the rest &mdash; with $450 billion of that coming from foreign central banks accumulating dollar reserves. That single line is the "exorbitant privilege" of last week's lecture, showing up in the accounts.</p>
+    <p>Worth asking: if the discrepancy is mostly hidden financial flows, is the true American deficit bigger or smaller than measured? There is no settled answer, which is the point.</p>
+  </template>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-title="External wealth">
+  <div class="eyebrow rv">From flows to stocks</div>
+  <h2 class="rv" style="--d:.05s">What a country owns, minus what it owes</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1.2fr; gap:3cqw; align-items:center">
+      <div>
+        <div class="grid g2 rv" style="--d:.14s; gap:1.4cqw">
+          <div class="card"><div class="num">Anne</div><h3>Income $50,000</h3><p>Savings of $10,000, and a credit card debt of $20,000.<br><strong>Net worth: &minus;$10,000</strong></p></div>
+          <div class="card"><div class="num">Beth</div><h3>Income $50,000</h3><p>Savings of $10,000, and no debt at all.<br><strong>Net worth: +$10,000</strong></p></div>
+        </div>
+        <p class="rv" style="--d:.24s; margin-top:1.4cqw">Same income, same spending. Nobody would say they are equally well off. Countries are no different &mdash; which is why the flow accounts are not enough, and we need a <strong>stock</strong> measure too.</p>
+      </div>
+      <div>
+        <div class="eq rv" style="--d:.2s; font-size:1.6cqw; text-align:center; padding:1.3cqw">W = A &minus; L<span style="display:block; font-family:var(--mono); font-size:.9cqw; color:var(--muted); letter-spacing:.06em; margin-top:.5cqw">EXTERNAL WEALTH = EXTERNAL ASSETS &minus; EXTERNAL LIABILITIES</span></div>
+        <ul class="tick rv" style="--d:.28s; margin-top:1.4cqw">
+          <li>Also called the <strong>net international investment position</strong>, or net foreign assets. It is a stock, measured at a moment, not a flow measured over a year.</li>
+          <li><strong>W &gt; 0</strong>: a net creditor country. <strong>W &lt; 0</strong>: a net debtor country.</li>
+          <li>External wealth is only part of national wealth &mdash; the rest is domestic capital, land and housing, which nobody abroad has a claim on.</li>
+        </ul>
+        <div class="stat rv" style="--d:.36s; margin-top:1.2cqw; border-left-color:var(--copper)"><span class="v">&minus;$2,866 bn</span><span class="l">US external wealth at the end of 2009 &mdash; about &minus;20% of GDP, or roughly $9,300 of net debt for every American, making it the largest debtor in history at the time</span></div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Anne and Beth are Feenstra's own example; use them exactly as written, because the parallel to countries is immediate and students never forget it.</p>
+    <p>Push on the "largest debtor in history" line, which is technically true and rhetorically misleading. In absolute dollars, yes. At about 20% of GDP it is a smaller burden than many developing countries have carried, and &mdash; crucially &mdash; almost all of it is denominated in dollars the United States can print. Compare with a country whose external liabilities are in a currency it cannot issue. That difference is the whole of Unit III's crisis literature.</p>
+  </template>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-title="Changing wealth">
+  <div class="eyebrow rv">How external wealth moves</div>
+  <h2 class="rv" style="--d:.05s">Thrift, the charity of others, and windfalls</h2>
+  <div class="body">
+    <div class="eq rv" style="--d:.1s; font-size:1.45cqw; max-width:80ch">&Delta;W = CA + KA + capital gains<span style="display:block; font-size:.95cqw; color:var(--muted); margin-top:.4cqw">EQUATION 5-16 &mdash; A COUNTRY GETS RICHER IN EXACTLY THREE WAYS</span></div>
+    <div class="grid g3 rv" style="--d:.18s; margin-top:1.6cqw; gap:2cqw">
+      <div class="card"><div class="num">01 &mdash; Thrift</div><h3>A current account surplus</h3><p>Spend less than you earn; the difference buys claims on the rest of the world.</p></div>
+      <div class="card"><div class="num">02 &mdash; The charity of others</div><h3>A capital account surplus</h3><p>Receive gifts of assets &mdash; most importantly, have your debts forgiven.</p></div>
+      <div class="card" style="border-color:var(--copper); background:var(--copper-soft)"><div class="num">03 &mdash; Windfalls</div><h3>Capital gains on what you already hold</h3><p>Asset prices rise, or the currency moves in your favour. You did nothing, and you are richer.</p></div>
+    </div>
+    <div>
+      <div class="grid" style="grid-template-columns:1fr 1fr; gap:2.6cqw; margin-top:1.4cqw; align-items:start">
+        <div class="rv" style="--d:.3s">
+          <div class="kicker" style="padding-bottom:.4cqw; border-bottom:2px solid var(--copper)">The United States in 2009</div>
+          <table class="acct" style="margin-top:.7cqw">
+            <tr><td>External wealth, end 2008</td><td class="n">&minus;3,654</td></tr>
+            <tr><td>Financial flows &mdash; net asset exports</td><td class="n">&minus;165</td></tr>
+            <tr><td>Valuation: price changes</td><td class="n">+523</td></tr>
+            <tr><td>Valuation: exchange rate changes</td><td class="n">+277</td></tr>
+            <tr><td>Valuation: other</td><td class="n">+153</td></tr>
+            <tr class="agg"><td>External wealth, end 2009</td><td class="n">&minus;2,866</td></tr>
+          </table>
+        </div>
+        <div class="rv" style="--d:.38s">
+          <p style="font-size:1.22cqw">The United States borrowed a further $165 billion in 2009 &mdash; and its external wealth <strong>improved by $788 billion</strong>. Feenstra's comment: <em>&ldquo;talk about a free lunch.&rdquo;</em></p>
+          <p style="font-size:1.22cqw">Its assets are mostly equities and foreign-currency claims, which rose as markets recovered and the dollar weakened. Its liabilities are mostly dollar debt, whose value did not move.</p>
+          <p style="font-size:1.22cqw; padding-left:1cqw; border-left:2px solid var(--green)">Capital gains are <strong>zero sum</strong>: every dollar of this windfall was a capital loss to the rest of the world.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>The headline number to leave them with: cumulating the financial flows from 1988 to 2009 would predict US external wealth of about &minus;$6,741 billion. The actual figure was &minus;$2,738 billion. Valuation effects were worth roughly <strong>$4 trillion</strong> &mdash; more than half the predicted debt, simply never incurred.</p>
+    <p>Then ask the question that connects to the whole course: why can the United States borrow in its own currency, so that a falling dollar reduces what it owes? And what happens to a country that borrows in someone else's currency, where a falling currency <em>raises</em> what it owes? That asymmetry &mdash; sometimes called original sin &mdash; is the engine of the crises in Unit III.</p>
+  </template>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-title="Trusting the data">
+  <div class="eyebrow rv">A necessary caution</div>
+  <h2 class="rv" style="--d:.05s">Beware of Greeks bearing statistics</h2>
+  <p class="lead rv" style="--d:.1s; max-width:94ch">We have spent two lectures learning to read national accounts. Feenstra ends the chapter by reminding us that governments produce them &mdash; and governments have interests.</p>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card rv" style="--d:.18s"><div class="num">Greece</div><h3>A deficit that grew after the fact</h3><p>Admitted to the euro in 2001 on a budget deficit reported below the 3% ceiling. In 2004 it conceded the 2003 figure was really 3.4%, and that it had not been under 3% since 1999. The full position emerged only in the crisis of 2008&ndash;09.</p></div>
+      <div class="card rv" style="--d:.24s"><div class="num">Italy</div><h3>Il sorpasso</h3><p>In 1987 Italian statisticians added about 15% to GDP as an estimate of the black economy. Italy overtook Britain overnight in the league table. No Italian felt richer.</p></div>
+      <div class="card rv" style="--d:.3s"><div class="num">Argentina</div><h3>Reorganising the statisticians</h3><p>After 2001, a government facing persistent inflation restructured its statistical bureau, which then published far lower inflation figures &mdash; conveniently reducing the cost of indexed benefits. Few believed them.</p></div>
+      <div class="card rv" style="--d:.36s"><div class="num">China</div><h3>A price level with consequences</h3><p>A revised estimate of China's price level made the country look poorer in real terms and its currency less undervalued &mdash; at a moment of intense political pressure to let the currency appreciate.</p></div>
+    </div>
+    <p class="rv" style="--d:.46s; margin-top:2cqw; max-width:96ch; font-size:1.5cqw; color:var(--ink)">The accounts are not a photograph of the economy. They are a <strong>construction</strong>, built by people, under rules, with incentives. Learn the rules well enough to know when the numbers are being bent.</p>
+  </div>
+  <template class="nt">
+    <p>This is the slide that earns the course its place in an international studies degree rather than an accountancy one. Statistics are instruments of statecraft: eligibility for the euro, IMF conditionality, credit ratings and aid allocations all turn on reported numbers.</p>
+    <p>Balance it, though. The overwhelming majority of national statistics are produced honestly by professionals under real constraints. The lesson is informed scepticism, not cynicism &mdash; and the first sign of trouble is usually a series that stops behaving like the things it should correlate with.</p>
+  </template>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-title="India">
+  <div class="eyebrow rv">The Indian lens</div>
+  <h2 class="rv" style="--d:.05s">Reading India's current account</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.55fr 1fr; gap:3cqw; align-items:center">
+      <figure class="rv" style="--d:.14s">
+        <div class="chart-wrap" data-chart="indiaca"></div>
+        <figcaption>India's current account, 2023&ndash;24: a very large goods deficit, all but closed by services exports and remittances.</figcaption>
+        <div class="src">Source: Reserve Bank of India, Balance of Payments statistics. Rounded to the nearest billion; check the latest release before quoting.</div>
+      </figure>
+      <div>
+        <p class="rv" style="--d:.2s">Every rung of the ladder is visible in one country's accounts:</p>
+        <ul class="tick rv" style="--d:.26s; font-size:1.25cqw">
+          <li><strong>Goods, &minus;$242 bn.</strong> Crude oil, gold and electronics &mdash; the number that makes headlines.</li>
+          <li><strong>Services, +$163 bn.</strong> Software, business services, and the right-hand end of last week's smile curve.</li>
+          <li><strong>Primary income, &minus;$50 bn.</strong> Profits and interest owed to foreign investors &mdash; India's own, smaller, Celtic Tiger effect.</li>
+          <li><strong>Secondary income, +$106 bn.</strong> Remittances from Indians working abroad: the largest such flow in the world.</li>
+        </ul>
+        <div class="stat rv" style="--d:.34s; margin-top:1cqw"><span class="v">&minus;0.7%</span><span class="l">The resulting deficit as a share of GDP &mdash; small, and comfortably financed. In 2012&ndash;13 it reached &minus;4.8% and the rupee fell hard</span></div>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>The teaching point is that the headline "trade deficit" figure quoted in the newspapers is the first bar only, and it is nearly three times the number that actually matters.</p>
+    <p>Set the comparison with 2012&ndash;13 as the discussion: same country, same accounts, a deficit near 4.8% of GDP, gold and oil imports surging, and then the taper tantrum. Ask what would have to change for today's 0.7% to become that again &mdash; and which of the four bars would have to move.</p>
+    <p>Tell students plainly to verify these figures in the current RBI release before using them in written work; the composition shifts every year.</p>
+  </template>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-title="Takeaways">
+  <canvas class="tex" data-guilloche="1"></canvas>
+  <div class="eyebrow rv">Wrapping up Unit I</div>
+  <h2 class="rv" style="--d:.05s">What to carry into Unit II</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1.2fr 1fr; gap:3cqw; align-items:start; position:relative">
+      <div>
+        <ul class="tick rv" style="--d:.14s">
+          <li>In a closed economy <strong>GNE = GDP = GNI</strong>. Opening the border pulls them apart, and the gaps <em>are</em> the international transactions.</li>
+          <li>Three adjustments climb the ladder: <strong>+ TB</strong> to GDP, <strong>+ NFIA</strong> to GNI, <strong>+ NUT</strong> to GNDI. Their sum is the <strong>current account</strong>.</li>
+          <li><strong>Y = C + I + G + CA</strong>, and therefore <strong>S = I + CA</strong>. A deficit is spending above income, and saving below investment &mdash; the same fact twice.</li>
+          <li><strong>CA + KA + FA = 0.</strong> Bookkeeping, not economics. It constrains everything and explains nothing.</li>
+          <li>Wealth is a stock: <strong>W = A &minus; L</strong>, moved by thrift, by gifts, and by valuation effects that can dwarf both.</li>
+        </ul>
+        <div class="eq rv" style="--d:.26s; margin-top:1.6cqw; font-size:1.25cqw">
+          <strong>Unit II opens here</strong> &mdash; the balance of payments accounts and the international investment position in detail, and then the question this unit has carefully avoided: <strong>what determines the exchange rate</strong> that all of these numbers are converted at?
+        </div>
+      </div>
+      <div class="rv" style="--d:.2s">
+        <div class="kicker" style="padding-bottom:.5cqw; border-bottom:2px solid var(--green)">Read for these topics</div>
+        <ul class="tick" style="margin-top:1cqw; font-size:1.12cqw">
+          <li>Feenstra &amp; Taylor, <em>International Macroeconomics</em>, 2nd ed. &mdash; <strong>Chapter 5</strong> in full; work the end-of-chapter problems</li>
+          <li>Krugman, Obstfeld &amp; Melitz, 10th ed. &mdash; Ch. 13, for a second exposition of the same identities</li>
+          <li>Caves, Frankel &amp; Jones, 10th ed. &mdash; the balance of payments chapter</li>
+          <li>RBI, <em>Handbook of Statistics on the Indian Economy</em> &mdash; the balance of payments tables, and the quarterly BoP press release</li>
+          <li>IMF, <em>Balance of Payments and International Investment Position Manual</em> (BPM6) &mdash; the rulebook, for reference not for reading</li>
+        </ul>
+        <p class="src" style="margin-top:1.2cqw">Tutorial task: bring one line from the latest RBI balance of payments release, and say which rung of the ladder it sits on.</p>
+      </div>
+    </div>
+  </div>
+  <template class="nt">
+    <p>Close by returning to the Mill epigraph from the first slide. Everything he listed in 1848 &mdash; tributes, remittances, emigration of capital, payment for goods &mdash; now has a line number in a standard account used by every country in the world. That standardisation is itself an achievement of international cooperation, and it is what makes Unit IV's institutions possible.</p>
+    <p>Assessment note: expect a numerical question requiring students to compute CA, GDP, GNI or GNDI from a table of components, and a short answer on why a current account deficit is not automatically a sign of weakness.</p>
+  </template>
+</section>
+
+</div><!-- /stage -->
+
+<div class="bar">
+  <button id="prev" aria-label="Previous slide">&larr; Prev</button>
+  <button id="next" aria-label="Next slide">Next &rarr;</button>
+  <span class="counter"><span id="cur">1</span> / <span id="tot">23</span></span>
+  <span class="counter hide-s" id="stitle"></span>
+  <span class="spacer"></span>
+  <div class="rail" id="rail" role="tablist" aria-label="Slides"></div>
+  <span class="spacer"></span>
+  <button id="notesbtn" class="hide-s">Notes</button>
+  <button id="themebtn" class="hide-s">Theme</button>
+  <button id="fsbtn" class="hide-s">Full screen</button>
+</div>
+</div><!-- /deck -->
+
+<div class="notes" id="notes" aria-live="polite"><h4>Speaker notes</h4><div id="notes-body"></div></div>
+
+<style>
+@media (prefers-reduced-motion: no-preference){
+  .slide.is-active .bar-anim{animation:barin .65s cubic-bezier(.2,.7,.3,1) both; animation-delay:var(--d,0s);}
+  .slide.is-active .line-anim{animation:draw 1.15s ease both .15s;}
+  .slide.is-active .late{animation:fadein .5s ease both .85s;}
+  .slide.is-active .hbar-anim{animation:hbarin .7s cubic-bezier(.2,.7,.3,1) both; animation-delay:var(--d,0s);}
+  .bar-anim{transform-box:fill-box; transform-origin:50% 100%; transform:scaleY(0);}
+  .hbar-anim{transform-box:fill-box; transform-origin:0 50%; transform:scaleX(0);}
+  .line-anim{stroke-dasharray:var(--len); stroke-dashoffset:var(--len);}
+  .late{opacity:0;}
+}
+@keyframes barin{to{transform:scaleY(1)}}
+@keyframes hbarin{to{transform:scaleX(1)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.chart{width:100%; height:auto; display:block; overflow:visible;}
+.chart .gl{stroke:var(--hair); stroke-width:1;}
+.chart .ax{fill:var(--muted); font-family:var(--mono); font-size:12px;}
+.chart .ax.y{text-anchor:end;} .chart .ax.x{text-anchor:middle;}
+.chart .val{fill:var(--ink); font-family:var(--mono); font-size:13px; font-weight:500;}
+.chart .hit{fill:transparent; cursor:crosshair;}
+.chart .cross{stroke:var(--ink-2); stroke-width:1; stroke-dasharray:3 3; opacity:0;}
+.chart .focus{fill:var(--green); stroke:var(--surface); stroke-width:2; opacity:0;}
+#trilemma .e, #trilemma text, #trilemma circle{transition:opacity .18s ease, stroke .18s ease;}
+#trilemma .hitline{stroke:transparent; stroke-width:30; cursor:pointer;}
+#trilemma[data-a] .e{opacity:.22}
+#trilemma[data-a="l"] .e-l, #trilemma[data-a="r"] .e-r, #trilemma[data-a="b"] .e-b{opacity:1; stroke:var(--copper);}
+#trilemma[data-a="l"] .v3, #trilemma[data-a="r"] .v2, #trilemma[data-a="b"] .v1{opacity:.16}
+#trilemma[data-a="l"] .e-r, #trilemma[data-a="l"] .e-b,
+#trilemma[data-a="r"] .e-l, #trilemma[data-a="r"] .e-b,
+#trilemma[data-a="b"] .e-l, #trilemma[data-a="b"] .e-r{opacity:.22}
+</style>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function el(t,a,txt){ var e=document.createElementNS(NS,t); for(var k in a){ e.setAttribute(k,a[k]); } if(txt!=null) e.textContent=txt; return e; }
+
+/* ── data ─────────────────────────────────────────── */
+var D = {
+  ireland:{
+    gdp:[[1980,14597],[1985,16400],[1990,20100],[1993,22300],[1995,24600],[1997,28200],[2000,33400],[2003,36600],[2005,38600],[2007,41900],[2008,41607]],
+    gni:[[1980,14525],[1985,16050],[1990,19100],[1993,20600],[1995,22300],[1997,25000],[2000,28700],[2003,31300],[2005,33100],[2007,36000],[2008,35679]]
+  },
+  usca:[[1980,0.1],[1982,-0.2],[1985,-2.8],[1987,-3.3],[1990,-1.3],[1991,0.0],[1993,-1.2],[1995,-1.5],[1998,-2.4],[2000,-4.2],[2003,-4.7],[2005,-5.9],[2006,-6.0],[2008,-4.7],[2009,-2.7]],
+  transfers:[["Tajikistan",38],["Timor-Leste",37],["Tonga",36],["Eritrea",31],["Samoa",27],["Cape Verde",25],["Jordan",21],["Nepal",18]],
+  indiaCA:[
+    {l:"Goods", v:-242, t:"delta"},
+    {l:"Services", v:163, t:"delta"},
+    {l:"Primary income", v:-50, t:"delta"},
+    {l:"Secondary income", v:106, t:"delta"},
+    {l:"Current account", v:-23, t:"total"}
+  ]
+};
+
+/* ── chart builders ───────────────────────────────── */
+var W=860,H=430,M={l:70,r:34,t:26,b:46};
+
+function lineChart(host, o){
+  var svg = el("svg",{class:"chart", viewBox:"0 0 "+W+" "+H, role:"img", "aria-label":o.aria});
+  var iw=W-M.l-M.r, ih=H-M.t-M.b;
+  var xmin=o.xMin, xmax=o.xMax, ymax=o.yMax, ymin=(o.yMin==null?0:o.yMin);
+  var xs=function(v){ return M.l + (v-xmin)/(xmax-xmin)*iw; };
+  var ys=function(v){ return M.t + ih - (v-ymin)/(ymax-ymin)*ih; };
+  o.yTicks.forEach(function(t){
+    svg.appendChild(el("line",{class:"gl",x1:M.l,x2:W-M.r,y1:ys(t),y2:ys(t),
+      style:(t===0&&ymin<0)?"stroke:var(--hair-strong)":""}));
+    svg.appendChild(el("text",{class:"ax y",x:M.l-12,y:ys(t)+4},o.yfmt?o.yfmt(t):t));
+  });
+  o.xTicks.forEach(function(t){ svg.appendChild(el("text",{class:"ax x",x:xs(t),y:H-M.b+24},t)); });
+  svg.appendChild(el("text",{class:"ax",x:M.l,y:M.t-10,fill:"var(--muted)"},o.unit));
+  var series = o.series || [{data:o.data, color:"var(--green)", name:o.name}];
+  var multi = series.length>1;
+  series.forEach(function(se,si){
+    var pts=se.data.map(function(d){ return [xs(d[0]), ys(d[1])]; });
+    var dLine="M"+pts.map(function(q){return q[0].toFixed(1)+","+q[1].toFixed(1);}).join(" L");
+    if(!multi && o.area!==false){
+      svg.appendChild(el("path",{class:"late",d:dLine+" L"+pts[pts.length-1][0].toFixed(1)+","+ys(Math.max(ymin,0))+" L"+pts[0][0].toFixed(1)+","+ys(Math.max(ymin,0))+" Z",fill:"var(--green-soft)",stroke:"none"}));
+    }
+    var line=el("path",{class:"line-anim",d:dLine,fill:"none",stroke:se.color,"stroke-width":2.5,"stroke-linejoin":"round","stroke-linecap":"round"});
+    svg.appendChild(line);
+    var last=pts[pts.length-1], lv=se.data[se.data.length-1][1];
+    var g=el("g",{class:"late"});
+    g.appendChild(el("circle",{cx:last[0],cy:last[1],r:5,fill:se.color,stroke:"var(--surface)","stroke-width":2}));
+    g.appendChild(el("text",{x:last[0]-9,y:last[1]+(si===1?18:-13),class:"val","text-anchor":"end",
+      fill:multi?se.color:"var(--ink)"},(se.name?se.name+" ":"")+(o.lfmt?o.lfmt(lv):lv)));
+    svg.appendChild(g);
+    if(!reduce) line.style.setProperty("--len", Math.ceil(line.getTotalLength()));
+  });
+  (o.marks||[]).forEach(function(m){
+    var src=(o.series?o.series[0].data:o.data);
+    var d=src.filter(function(r){return r[0]===m.x;})[0]; if(!d) return;
+    var q=[xs(d[0]),ys(d[1])], below=m.dy<0, ey=q[1]-m.dy;
+    var g=el("g",{class:"late"});
+    g.appendChild(el("line",{x1:q[0],y1:q[1],x2:q[0],y2:ey,stroke:"var(--copper)","stroke-width":1}));
+    g.appendChild(el("circle",{cx:q[0],cy:q[1],r:4.5,fill:"var(--copper)",stroke:"var(--surface)","stroke-width":2}));
+    var ox=m.anchor==="end"?-8:m.anchor==="middle"?0:8;
+    g.appendChild(el("text",{x:q[0]+ox,y:below?ey+15:ey-7,fill:"var(--copper)","font-family":"var(--mono)","font-size":12,"text-anchor":m.anchor||"start"},m.text));
+    svg.appendChild(g);
+  });
+  var cross=el("line",{class:"cross",y1:M.t,y2:M.t+ih,x1:0,x2:0});
+  var focus=el("circle",{class:"focus",r:5,cx:0,cy:0});
+  svg.appendChild(cross); svg.appendChild(focus);
+  var hit=el("rect",{class:"hit",x:M.l,y:M.t,width:iw,height:ih});
+  svg.appendChild(hit); host.appendChild(svg);
+  var tt=document.createElement("div"); tt.className="tt"; host.appendChild(tt);
+  hit.addEventListener("pointermove",function(ev){
+    var r=svg.getBoundingClientRect(), sx=(ev.clientX-r.left)/r.width*W;
+    var base=series[0].data, best=null, bd=1e9;
+    base.forEach(function(d){ var dd=Math.abs(xs(d[0])-sx); if(dd<bd){bd=dd;best=d;} });
+    if(!best) return;
+    var q=[xs(best[0]),ys(best[1])];
+    cross.setAttribute("x1",q[0]); cross.setAttribute("x2",q[0]); cross.style.opacity=".6";
+    focus.setAttribute("cx",q[0]); focus.setAttribute("cy",q[1]); focus.style.opacity="1";
+    focus.setAttribute("fill",series[0].color);
+    var html="<b>"+best[0]+"</b>";
+    series.forEach(function(se){
+      var row=se.data.filter(function(d){return d[0]===best[0];})[0];
+      if(row) html += "<br>"+(se.name?se.name+": ":"")+(o.lfmt?o.lfmt(row[1]):row[1])+" "+o.ttUnit;
+    });
+    tt.innerHTML=html;
+    tt.style.left=(q[0]/W*100)+"%"; tt.style.top=(q[1]/H*r.height)+"px"; tt.style.opacity="1";
+  });
+  hit.addEventListener("pointerleave",function(){ tt.style.opacity="0"; cross.style.opacity="0"; focus.style.opacity="0"; });
+}
+
+function waterfall(host,o){
+  var svg=el("svg",{class:"chart",viewBox:"0 0 "+W+" "+H,role:"img","aria-label":o.aria});
+  var iw=W-M.l-M.r, ih=H-M.t-M.b, n=o.items.length;
+  var step=iw/n, bw=Math.min(76,step*0.6);
+  var ys=function(v){ return M.t+ih-(v-o.yMin)/(o.yMax-o.yMin)*ih; };
+  o.yTicks.forEach(function(t){
+    svg.appendChild(el("line",{class:"gl",x1:M.l,x2:W-M.r,y1:ys(t),y2:ys(t),style:t===0?"stroke:var(--hair-strong)":""}));
+    svg.appendChild(el("text",{class:"ax y",x:M.l-12,y:ys(t)+4},t));
+  });
+  svg.appendChild(el("text",{class:"ax",x:M.l,y:M.t-10,fill:"var(--muted)"},o.unit));
+  var tt=document.createElement("div"); tt.className="tt";
+  var run=0, prevX=null, prevY=null;
+  o.items.forEach(function(it,i){
+    var cx=M.l+step*i+step/2, x=cx-bw/2;
+    var from = it.t==="total" ? 0 : run;
+    var to   = it.t==="total" ? it.v : run+it.v;
+    if(it.t!=="total") run=to;
+    var y0=ys(from), y1=ys(to), top=Math.min(y0,y1), h=Math.max(2,Math.abs(y1-y0));
+    var col = it.t==="total" ? "var(--ink-2)" : (it.v>=0 ? "var(--green)" : "var(--copper)");
+    var rect=el("rect",{x:x,y:top,width:bw,height:h,rx:2,fill:col,class:"bar-anim",
+      style:"--d:"+(0.1+i*0.09)+"s; transform-origin:50% "+(y1>y0?"0%":"100%")});
+    rect.addEventListener("pointerenter",function(){
+      tt.innerHTML="<b>"+it.l+"</b> &middot; "+(it.v>0?"+":"")+it.v+" "+o.ttUnit;
+      tt.style.left=(cx/W*100)+"%"; tt.style.top=(top/H*svg.getBoundingClientRect().height)+"px"; tt.style.opacity="1";
+    });
+    rect.addEventListener("pointerleave",function(){ tt.style.opacity="0"; });
+    svg.appendChild(rect);
+    svg.appendChild(el("text",{class:"val late",x:cx,y:(y1<y0?top-9:top+h+20),"text-anchor":"middle",
+      fill:"var(--ink)"},(it.v>0?"+":"")+it.v));
+    var lab=el("text",{class:"ax x",x:cx,y:H-M.b+24});
+    it.l.split(" ").reduce(function(acc,w){ return acc; },0);
+    var words=it.l.split(" "), lines=[];
+    if(words.length>1 && it.l.length>10){ lines=[words[0],words.slice(1).join(" ")]; } else { lines=[it.l]; }
+    lines.forEach(function(ln,k){ lab.appendChild(el("tspan",{x:cx,dy:k===0?0:15},ln)); });
+    svg.appendChild(lab);
+    if(prevX!==null && it.t!=="total"){
+      svg.appendChild(el("line",{class:"late",x1:prevX,y1:prevY,x2:x,y2:prevY,stroke:"var(--hair-strong)","stroke-width":1,"stroke-dasharray":"3 3"}));
+    }
+    prevX=x+bw; prevY=y1;
+  });
+  host.appendChild(svg); host.appendChild(tt);
+}
+
+function hbarChart(host,o){
+  var w=860, rowH=34, h=o.data.length*rowH+34, lab=150;
+  var svg=el("svg",{class:"chart",viewBox:"0 0 "+w+" "+h,role:"img","aria-label":o.aria});
+  var iw=w-lab-70, max=o.max;
+  (o.ticks||[0,10,20,30,40]).forEach(function(t){
+    var x=lab+t/max*iw;
+    svg.appendChild(el("line",{class:"gl",x1:x,x2:x,y1:6,y2:h-30}));
+    svg.appendChild(el("text",{class:"ax x",x:x,y:h-10},t+"%"));
+  });
+  var tt=document.createElement("div"); tt.className="tt";
+  o.data.forEach(function(d,i){
+    var y=10+i*rowH, bh=17, bw=Math.max(3,d[1]/max*iw), r=4;
+    var hi=(o.highlight||[]).indexOf(d[0])>=0, col=hi?"var(--copper)":"var(--green)";
+    var path="M"+lab+","+y+" L"+(lab+bw-r)+","+y+" Q"+(lab+bw)+","+y+" "+(lab+bw)+","+(y+r)+" L"+(lab+bw)+","+(y+bh-r)+" Q"+(lab+bw)+","+(y+bh)+" "+(lab+bw-r)+","+(y+bh)+" L"+lab+","+(y+bh)+" Z";
+    svg.appendChild(el("path",{d:path,fill:col,class:"hbar-anim",style:"--d:"+(0.08+i*0.05)+"s"}));
+    svg.appendChild(el("text",{x:lab-14,y:y+14,"text-anchor":"end",fill:hi?"var(--copper)":"var(--ink)","font-family":"Source Sans 3, sans-serif","font-size":14},d[0]));
+    svg.appendChild(el("text",{class:"val late",x:lab+bw+10,y:y+14,fill:"var(--ink)","font-size":12},d[1]+"%"));
+  });
+  host.appendChild(svg); host.appendChild(tt);
+}
+
+/* ── build the charts ─────────────────────────────── */
+function buildCharts(){
+  document.querySelectorAll("[data-chart]").forEach(function(host){
+    var k=host.getAttribute("data-chart");
+    if(k==="ireland") lineChart(host,{
+      series:[{data:D.ireland.gdp,color:"var(--green)",name:"GDP"},{data:D.ireland.gni,color:"var(--copper)",name:"GNI"}],
+      xMin:1980, xMax:2008, yMax:46000, yTicks:[0,10000,20000,30000,40000], xTicks:[1980,1990,2000,2008],
+      unit:"per person, real euros", ttUnit:"", lfmt:function(v){return v.toLocaleString();},
+      aria:"Irish GDP per person and GNI per person from 1980 to 2008. The two are almost equal in 1980 and diverge steadily, with GDP reaching about 41,600 euros and GNI only 35,700 euros by 2008."
+    });
+    if(k==="usca") lineChart(host,{
+      data:D.usca, xMin:1980, xMax:2009, yMin:-7, yMax:1.5, yTicks:[-6,-4,-2,0], xTicks:[1980,1990,2000,2009],
+      unit:"% of GDP", ttUnit:"% of GDP", lfmt:function(v){return v.toFixed(1);}, area:false,
+      aria:"The United States current account as a share of GDP from 1980 to 2009, reaching a record deficit near six per cent of GDP in 2006.",
+      marks:[{x:2006,dy:-30,text:"record deficit, near 6% of GDP",anchor:"end"}]
+    });
+    if(k==="transfers") hbarChart(host,{
+      data:D.transfers, max:40,
+      aria:"Net unilateral transfers as a share of gross national income for selected countries, ranging from 38 per cent in Tajikistan to 16 per cent in Ghana."
+    });
+    if(k==="indiaca") waterfall(host,{
+      items:D.indiaCA, yMin:-280, yMax:60, yTicks:[-250,-200,-150,-100,-50,0,50], unit:"US$ billion", ttUnit:"US$ bn",
+      aria:"India's current account for 2023-24: a goods deficit of 242 billion dollars, offset by a services surplus of 163 billion and secondary income of 106 billion, against primary income of minus 50 billion, leaving a current account deficit of 23 billion dollars."
+    });
+  });
+}
+
+/* ── the double-entry ledger ──────────────────────── */
+function initLedger(){
+  document.querySelectorAll(".ledger .tx").forEach(function(row){
+    row.addEventListener("click",function(){ row.classList.toggle("open"); });
+    row.addEventListener("keydown",function(e){
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); row.classList.toggle("open"); }
+    });
+  });
+}
+
+/* ── guilloche background (banknote engraving) ────── */
+function guilloche(cv){
+  var r=cv.getBoundingClientRect(); if(!r.width) return;
+  var dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=r.width*dpr; cv.height=r.height*dpr;
+  var c=cv.getContext("2d"); c.scale(dpr,dpr);
+  c.clearRect(0,0,r.width,r.height);
+  var cx=r.width*0.88, cy=r.height*0.5, base=Math.min(r.width,r.height);
+  var dark=document.documentElement.getAttribute("data-theme")==="dark"||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches && document.documentElement.getAttribute("data-theme")!=="light");
+  c.lineWidth=0.55;
+  for(var l=0;l<7;l++){
+    var R=base*(0.20+l*0.072), n=7+l*2, rr=R/n, d=rr*1.75, k=n-1;
+    c.strokeStyle=dark?"rgba(23,168,130,"+(0.20-l*0.019)+")":"rgba(0,132,107,"+(0.16-l*0.015)+")";
+    for(var pass=0;pass<2;pass++){
+      var off=pass*Math.PI/n;
+      c.beginPath();
+      for(var t=0;t<=Math.PI*2+0.02;t+=0.006){
+        var a=t+off;
+        var x=cx+(R-rr)*Math.cos(a)+d*Math.cos(k*a);
+        var y=cy+(R-rr)*Math.sin(a)-d*Math.sin(k*a);
+        t===0?c.moveTo(x,y):c.lineTo(x,y);
+      }
+      c.stroke();
+    }
+  }
+}
+function paintTextures(){ document.querySelectorAll("canvas[data-guilloche]").forEach(guilloche); }
+
+/* ── deck navigation ──────────────────────────────── */
+var slides=[].slice.call(document.querySelectorAll(".slide"));
+var idx=0, globe=null;
+var rail=document.getElementById("rail"), notes=document.getElementById("notes"), nbody=document.getElementById("notes-body");
+var prog=document.createElement("div"); prog.className="progress"; document.getElementById("stage").appendChild(prog);
+document.getElementById("tot").textContent=slides.length;
+slides.forEach(function(s,i){
+  var b=document.createElement("button");
+  b.setAttribute("role","tab"); b.setAttribute("aria-label","Slide "+(i+1)+": "+(s.dataset.title||""));
+  b.addEventListener("click",function(){ go(i); });
+  rail.appendChild(b);
+});
+function go(n){
+  idx=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach(function(s,i){ s.classList.toggle("is-active",i===idx); });
+  [].slice.call(rail.children).forEach(function(b,i){ b.setAttribute("aria-current",i===idx?"true":"false"); });
+  document.getElementById("cur").textContent=idx+1;
+  document.getElementById("stitle").textContent=slides[idx].dataset.title||"";
+  prog.style.width=((idx+1)/slides.length*100)+"%";
+  var t=slides[idx].querySelector("template.nt");
+  nbody.innerHTML=t?t.innerHTML:"<p>&mdash;</p>";
+  if(slides[idx].querySelector("canvas[data-guilloche]")) paintTextures();
+  try{ history.replaceState(null,"","#"+(idx+1)); }catch(e){}
+}
+document.getElementById("next").addEventListener("click",function(){ go(idx+1); });
+document.getElementById("prev").addEventListener("click",function(){ go(idx-1); });
+document.getElementById("notesbtn").addEventListener("click",function(){ notes.classList.toggle("on"); });
+document.getElementById("themebtn").addEventListener("click",function(){
+  var r=document.documentElement, cur=r.getAttribute("data-theme");
+  var sysDark=window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var nowDark = cur ? cur==="dark" : sysDark;
+  r.setAttribute("data-theme", nowDark?"light":"dark");
+  paintTextures();
+});
+document.getElementById("fsbtn").addEventListener("click",function(){
+  if(document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+});
+document.addEventListener("keydown",function(e){
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
+  var k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"||k===" "){ e.preventDefault(); go(idx+1); }
+  else if(k==="ArrowLeft"||k==="PageUp"){ e.preventDefault(); go(idx-1); }
+  else if(k==="Home"){ go(0); } else if(k==="End"){ go(slides.length-1); }
+  else if(k==="n"||k==="N"){ notes.classList.toggle("on"); }
+  else if(k==="f"||k==="F"){ document.getElementById("fsbtn").click(); }
+  else if(k==="t"||k==="T"){ document.getElementById("themebtn").click(); }
+});
+var sx=null;
+document.getElementById("stage").addEventListener("touchstart",function(e){ sx=e.touches[0].clientX; },{passive:true});
+document.getElementById("stage").addEventListener("touchend",function(e){
+  if(sx===null) return; var dx=e.changedTouches[0].clientX-sx;
+  if(Math.abs(dx)>60){ go(idx+(dx<0?1:-1)); } sx=null;
+},{passive:true});
+
+/* ── boot ─────────────────────────────────────────── */
+function boot(){
+  buildCharts(); initLedger(); paintTextures();
+  var h=parseInt((location.hash||"#1").slice(1),10);
+  go(isNaN(h)?0:h-1);
+  window.addEventListener("resize",paintTextures);
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paintTextures);
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
+})();
+</script>
